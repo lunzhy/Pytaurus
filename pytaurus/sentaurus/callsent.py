@@ -14,18 +14,32 @@ def chdirToSentrun(prj_path):
 
 def callSse(sse_cmd):
     prj_path = sse_cmd.prj_path
-    log_filepath = os.path.join(prj_path, 'sse_run.log')
-    logfile = open(log_filepath, "w+")
+    log_filepath = os.path.join(prj_path, sen.Logfile_Sse)
+    logfile = open(log_filepath, 'w+')
     chdirToSentrun(prj_path)
     command = 'sde -e -l %s' % sen.Sse_Cmd_File
-    output, error = subprocess.Popen(command.split(' '), stdout=logfile,
-                                     stderr=subprocess.PIPE).communicate()
+    subprocess.call(command.split(' '))
+    #output = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE).communicate()[0]
+    #print(output.decode('utf-8'))
+    #subprocess.check_output(command.split(' '))
+    logfile.close()
+    return
+
+
+def callSdevice(sde_cmd):
+    prj_path = sde_cmd.prj_path
+    log_filepath = os.path.join(prj_path, sen.Logfile_Sdevice)
+    logfile = open(log_filepath, 'w+')
+    chdirToSentrun(prj_path)
+    command = 'sdevice %s' % sen.Sde_Cmd_File
+    subprocess.call(command.split(' '))
     logfile.close()
     return
 
 
 def test():
     callSse(platform.Debug_Directory)
+    callSdevice(platform.Debug_Directory)
 
 
 if __name__ == '__main__': test()

@@ -41,7 +41,6 @@ class SdeCmdFile():
             self.points[id] = (xCoord, yCoord)
         sorted_list = sorted(self.points.items(), key=lambda x: x[0])
         self.points = collections.OrderedDict(sorted_list)
-        print(self.points)
         f.close()
         return
 

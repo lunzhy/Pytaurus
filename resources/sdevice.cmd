@@ -70,7 +70,7 @@ Solve
     (
         InitialStep=1e-3        Increment=1.6       Decrement=4
         MinStep=1e-5            MaxStep = 0.2
-        Goal{ Name="gate2"      Voltage=16}
+        Goal{ Name="gate2"      Voltage=%tc.gate2.voltage%}
     ){ Coupled { Poisson Electron Hole }
        CurrentPlot ( Time=(1) ) }
 }

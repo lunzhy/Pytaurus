@@ -18,3 +18,7 @@ Sde_Cmd_File = r'sde_triple.cmd'
 #names of file for data exchange
 ExDataFile_Channel = r'channel_verts.in'
 Tdr_File = r'triple_msh.tdr'
+
+#names of file for log
+Logfile_Sse = r'sse_run.log'
+Logfile_Sdevice = r'sde_run.log'
