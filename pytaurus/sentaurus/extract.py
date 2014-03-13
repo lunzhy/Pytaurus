@@ -13,10 +13,10 @@ def parsePlotFile(file_path):
     content = f.read()
     f.close()
 
-    pat_data = re.compile(r'Data.*{.*}', re.DOTALL)
+    pat_data = re.compile(r'Data.*\{.*\}', re.DOTALL)
     match = re.search(pat_data, content)
     data_branket = match.group()
-    pat_value = re.compile(r'(?<={).*(?=})', re.DOTALL)
+    pat_value = re.compile(r'(?<=\{).*(?=\})', re.DOTALL)
     match = re.search(pat_value, data_branket)
     data_str = match.group()
     pat = re.compile(r'\s+')
