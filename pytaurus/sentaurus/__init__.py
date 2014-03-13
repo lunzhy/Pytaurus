@@ -9,6 +9,12 @@ Resource_Sde_File = r'sdevice.cmd'
 
 #the folder to run sentaurus under project folder
 Folder_Run_Sentaurus = r'sentrun'
+Folder_Exchange_Data = r'exchange'
 
 #the generated command name for sse dan sdevice
-Sse_Cmd_File = r'sse.cmd'
+Sse_Cmd_File = r'sse_triple.cmd'
+Sde_Cmd_File = r'sde_triple.cmd'
+
+#names of file for data exchange
+ExDataFile_Channel = r'channel_verts.in'
+Tdr_File = r'triple_msh.tdr'

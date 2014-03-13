@@ -20,6 +20,7 @@ def callSse(sse_cmd):
     command = 'sde -e -l %s' % sen.Sse_Cmd_File
     output, error = subprocess.Popen(command.split(' '), stdout=logfile,
                                      stderr=subprocess.PIPE).communicate()
+    logfile.close()
     return
 
 

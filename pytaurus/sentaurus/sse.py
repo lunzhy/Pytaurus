@@ -56,7 +56,8 @@ class TripleCells:
         self.readParamFile(self.user_param_path)
         self.setNonOccur()
         self.setEquiStackThick()
-        self.calcPotentialPoints()
+        self.calcChannelPoints()
+        self.writeChannelPoints()
         return
 
     def setEquiStackThick(self):
@@ -74,12 +75,13 @@ class TripleCells:
                             + float(block_thick) / float(block_dielectric)) * float(SiO2_dielectric)
         self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick)
         return
+
     def setNonOccur(self):
         self.params['tc.iso1.width'] = self.params['tc.iso2.width']
         self.params['tc.iso4.width'] = self.params['tc.iso3.width']
         return
 
-    def calcPotentialPoints(self):
+    def calcChannelPoints(self):
         nm_in_um = 1e-3
         y_coord = 0
         # under gate1
@@ -119,15 +121,25 @@ class TripleCells:
             self.points.append((x_coord, y_coord))
         return
 
+    def writeChannelPoints(self):
+        points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.ExDataFile_Channel)
+        f = open(points_filepath, 'w+')
+        f.write('vertex ID\t\tchannel potential [V]\t\tfermi energy above CB [eV]\n')
+        for id, tup_points in enumerate(self.points):
+            line = str(id) + '\t' + str(tup_points[0]) + '\t' + str(tup_points[1]) + '\n'
+            f.write(line)
+        f.close()
+        return
+
 
 class SseCmdFile:
     def __init__(self, trip_cell):
         self.triple_cell = trip_cell
+        self.prj_path = trip_cell.prj_path
         file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                  os.pardir, os.pardir, 'resources', sen.Resource_Sse_File))
         self.template_cmdfile = file_path
         self.cmd_lines = []
-        self.prj_path = trip_cell.prj_path
         self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File)
         return
 
@@ -208,10 +220,12 @@ class SseCmdFile:
         dirToCheck = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir,
                                       'out')
         shutil.copy(self.cmd_filepath, dirToCheck)
+        return
 
     def build(self):
         self.writeCmdFile()
         self.copyCmdFileToPrj()
+        return
 
 
 def test():

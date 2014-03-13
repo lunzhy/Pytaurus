@@ -1,9 +1,9 @@
 File
 {
-    Grid    = "demo_msh.tdr"
-    Plot    = "demo"
-    Current = "demo"
-    Output  = "demo"
+    Grid    = "%grid.tdr%"
+    Plot    = "triple_sde"
+    Current = "triple_sde"
+    Output  = "triple_sde"
 }
 
 Electrode
@@ -11,9 +11,9 @@ Electrode
     { Name="substrate"      Voltage=0.0}
     { Name="source"         Voltage=0.0}
     { Name="drain"          Voltage=0.0}
-    { Name="gate1"          Voltage=0       WorkFunction=4.1}
-    { Name="gate2"          Voltage=0       WorkFunction=4.1}
-    { Name="gate3"          Voltage=0       WorkFunction=4.1}
+    { Name="gate1"          Voltage=0       WorkFunction=%tc.gate1.workfunction%}
+    { Name="gate2"          Voltage=0       WorkFunction=%tc.gate2.workfunction%}
+    { Name="gate3"          Voltage=0       WorkFunction=%tc.gate3.workfunction%}
 }
 
 Physics
@@ -36,48 +36,24 @@ Math
     Digits=5
 }
 
-CurrentPlot
-{
-    Potential
-    (
-        Average(RegionInterface="R.subs/R.gate2.gr1")
-        Average(RegionInterface="R.subs/R.gate2.gr2")
-        Average(RegionInterface="R.subs/R.gate2.gr3")
-    )
-    eQuasiFermiEnergy
-    (
-        Average(RegionInterface="R.subs/R.gate2.gr1")
-        Average(RegionInterface="R.subs/R.gate2.gr2")
-        Average(RegionInterface="R.subs/R.gate2.gr3")
-        (0.12, -1e-6)
-    )
-    ConductionBandEnergy
-    (
-        Average(RegionInterface="R.subs/R.gate2.gr1")
-        Average(RegionInterface="R.subs/R.gate2.gr2")
-        Average(RegionInterface="R.subs/R.gate2.gr3")
-        (0.12, -1e-6)
-    )
-}
-
 Solve
 {
     Coupled ( Iterations=50 ) { Poisson }
     Coupled { Poisson Electron Hole }
-    
+
     Quasistationary
     (
         InitialStep=1e-3        Increment=1.6
         MinStep=1e-5            MaxStep=0.2
-        Goal{ Name="gate1"      Voltage=10}
-    ){ Coupled { Poisson } 
+        Goal{ Name="gate1"      Voltage=%tc.gate1.voltage%}
+    ){ Coupled { Poisson }
        CurrentPlot ( Time=(-1)) }
 
     Quasistationary
     (
         InitialStep=1e-3        Increment=1.6
         MinStep=1e-5            MaxStep=0.2
-        Goal{ Name="gate3"      Voltage=10}
+        Goal{ Name="gate3"      Voltage=%tc.gate3.voltage%}
     ){ Coupled { Poisson }
        CurrentPlot ( Time=(-1) ) }
 
@@ -85,11 +61,11 @@ Solve
     (
         InitialStep=1e-3        Increment=1.6       Decrement=4
         MinStep=1e-5            MaxStep = 0.2
-        Goal{ Name="drain"      Voltage=1.5}
+        Goal{ Name="drain"      Voltage=%tc.drain.voltage%}
     ){ Coupled { Poisson Electron Hole }
        CurrentPlot ( Time=(-1)) }
 
-    NewCurrentPrefix="pos_"
+    NewCurrentPrefix="init_"
     Quasistationary
     (
         InitialStep=1e-3        Increment=1.6       Decrement=4
@@ -99,6 +75,22 @@ Solve
        CurrentPlot ( Time=(1) ) }
 }
 
+CurrentPlot
+{
+    Potential
+    (
+        %points%
+    )
+    eQuasiFermiEnergy
+    (
+        %points%
+    )
+    ConductionBandEnergy
+    (
+        %points%
+    )
+}
+
 Plot
 {
     *-Carrier Densities:
@@ -106,8 +98,8 @@ Plot
 
     *-Currents and current components:
     Current/Vector eCurrent/Vector hCurrent/Vector
-    eMobility hMobility
-    eVelocity hVelocity
+    * eMobility hMobility
+    * eVelocity hVelocity
 
     *-Fields, Potentials and Charge distributions
     ElectricField/Vector 
@@ -121,17 +113,17 @@ Plot
     eENormal hENormal
 
     *-Temperatures
-    *LatticeTemperature
-    *eTemperature hTemperature
+    * LatticeTemperature
+    * eTemperature hTemperature
 
     *-Generation/Recombination
-    *SRHRecombination
-    *AvalancheGeneration eAvalancheGeneration hAvalancheGeneration
-    *TotalRecombination
+    * SRHRecombination
+    * AvalancheGeneration eAvalancheGeneration hAvalancheGeneration
+    * TotalRecombination
 
     *-Doping Profiles
-    *Doping 
-    *DonorConcentration AcceptorConcentration
+    * Doping
+    * DonorConcentration AcceptorConcentration
 
     *-Band structure
     BandGap 
