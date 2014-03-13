@@ -214,7 +214,7 @@
 (sdedr:define-refinement-region "PlaceRef.subs" "Ref.subs" "R.subs")
 
 ;stack
-(sdedr:define-refinement-size "Ref.stack" 5e-3  3e-3  3e-3  2e-3)
+(sdedr:define-refinement-size "Ref.stack" 5e-3  3e-3  1e-3  1e-3)
 (sdedr:define-refinement-material "PlaceRef.stack" "Ref.stack" "SiO2")
 
 ;isolation region
@@ -253,4 +253,4 @@
 (sdedr:define-refinement-placement "PlaceRF.halo.gate3" "Ref.halo" "RefWin.halo.gate3")
 
 
-(sde:build-mesh "snmesh" "" "demo_msh")
+(sde:build-mesh "snmesh" "" "triple")
