@@ -1,5 +1,5 @@
 __author__ = 'Lunzhy'
-import os, sys, re
+import os, sys, re, shutil
 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
 if not path in sys.path:
     sys.path.append(path)
@@ -9,6 +9,7 @@ import pytaurus.sentaurus as sen
 
 class TripleCells:
     def __init__(self, prj_path):
+        self.prj_path = prj_path
         self.current_material = ''
         self.params = {}
         self.mat_params = {}
@@ -124,8 +125,10 @@ class SseCmdFile:
         self.triple_cell = trip_cell
         file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                  os.pardir, os.pardir, 'resources', sen.Resource_Sse_File))
-        self.template_file = file_path
+        self.template_cmdfile = file_path
         self.cmd_lines = []
+        self.prj_path = trip_cell.prj_path
+        self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File)
         return
 
     def replaceLine(self, line):
@@ -174,7 +177,7 @@ class SseCmdFile:
         return
 
     def creatCmdLines(self):
-        template = open(self.template_file)
+        template = open(self.template_cmdfile)
         end_count = 0
         put_flag = False
         for line in template.readlines():
@@ -193,14 +196,22 @@ class SseCmdFile:
         template.close()
         return
 
-    def writeCmdFile(self, file_name):
-        file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir,
-                                 'out', file_name)
-        f = open(file_path, 'w+')
+    def writeCmdFile(self):
+        cmd_filepath = self.cmd_filepath
+        f = open(cmd_filepath, 'w+')
         self.creatCmdLines()
         f.writelines(self.cmd_lines)
         f.close()
         return
+
+    def copyCmdFileToPrj(self):
+        dirToCheck = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir,
+                                      'out')
+        shutil.copy(self.cmd_filepath, dirToCheck)
+
+    def build(self):
+        self.writeCmdFile()
+        self.copyCmdFileToPrj()
 
 
 def test():
@@ -212,8 +223,9 @@ def test():
     #print(trip_cells.getMaterialParam(('SiO2', 'dielectricConstant')))
     sse = SseCmdFile(trip_cells)
     #new = sse.replaceLine('(define ThicknessGate tc.iso.thick%)    ;(defineThicknessGate 10)')
-    sse.writeCmdFile('a.txt')
+    #sse.writeCmdFile('a.txt')
     #print(os.path.dirname(__file__))
+    sse.build()
     return
 
 if __name__ == '__main__': test()
