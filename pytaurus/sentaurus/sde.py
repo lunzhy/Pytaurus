@@ -5,7 +5,6 @@ if not path in sys.path:
     sys.path.append(path)
 import pytaurus.sentaurus as sen
 
-
 def test():
     return
 
