@@ -3,6 +3,7 @@ import os, sys, re
 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
 if not path in sys.path:
     sys.path.append(path)
+import pytaurus.platform as platform
 import pytaurus.sentaurus as sen
 
 
@@ -49,7 +50,7 @@ class TripleCells:
         return self.matParams[name]
 
     def build(self):
-        default_param_path = sen.Default_Param_Path
+        default_param_path = platform.Default_Param_Path
         self.readParamFile(default_param_path)
         self.readParamFile(self.user_param_path)
         self.setNonOccur()
@@ -202,7 +203,7 @@ class SseCmdFile:
 
 
 def test():
-    trip_cells = TripleCells(sen.Directory_Debug)
+    trip_cells = TripleCells(platform.Debug_Directory)
     trip_cells.build()
     print(trip_cells.points)
     print(trip_cells.params)
