@@ -16,7 +16,7 @@
 (define LengthIsolation3 %tc.iso3.width%)           ;(define LengthIsolation3 30)
 (define LengthGate3 %tc.gate3.width%)               ;(define LengthGate3 45)
 (define LengthIsolation1 LengthIsolation2)          ;(define LengthIsolation1 30)
-(define LengthIsolation4 LengthIsolation 3)         ;(define LengthIsolation4 30)
+(define LengthIsolation4 LengthIsolation3)          ;(define LengthIsolation4 30)
 (define SubstrateDoping 5e18)
 (define JunctionDepth 45)
 (define ChannelDepth 15)
