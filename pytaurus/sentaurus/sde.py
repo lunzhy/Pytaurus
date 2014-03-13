@@ -7,6 +7,12 @@ import collections
 import pytaurus.sentaurus as sen
 
 
+def movePlotFile(prj_path):
+    origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File)
+    dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data)
+    shutil.copy(origin_path, dst_path)
+    return
+
 class SdeCmdFile():
     def __init__(self, triple_cell):
         self.params = {}
@@ -29,7 +35,7 @@ class SdeCmdFile():
 
     def readChannelVerts(self):
         nm_in_um = 1e-3
-        verts_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.ExDataFile_Channel)
+        verts_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.ExPoints_Subs)
         f = open(verts_filepath)
         for line in f.readlines()[1:]:
             values = re.split('\s+', line)

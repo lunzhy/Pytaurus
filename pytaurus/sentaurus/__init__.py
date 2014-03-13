@@ -16,8 +16,10 @@ Sse_Cmd_File = r'sse_triple.cmd'
 Sde_Cmd_File = r'sde_triple.cmd'
 
 #names of file for data exchange
-ExDataFile_Channel = r'subs_verts.in'
+ExPoints_Subs = r'subs_points.in'
+ExData_Subs = r'substrate.in'
 Tdr_File = r'triple_msh.tdr'
+Plot_File = r'init_triple_sde_des.plt'
 
 #names of file for log
 Logfile_Sse = r'sse_run.log'

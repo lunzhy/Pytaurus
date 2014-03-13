@@ -3,12 +3,14 @@ import os, sys, re
 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
 if not path in sys.path:
     sys.path.append(path)
+import pytaurus.sentaurus as sen
 
 
-def parsePlotFile(file_path):
+def parsePlotFile(prj_path):
     potential_list = []
     fermi_energy_list = []
     conduction_band_list = []
+    file_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_File)
     f = open(file_path)
     content = f.read()
     f.close()
@@ -43,7 +45,7 @@ def parsePlotFile(file_path):
             conduction_band_list.append(value)
 
     #put file
-    out_filepath = r'E:\@Workstation.TCAD\SimCTM\substrate.in'
+    out_filepath = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.ExData_Subs)
     f = open(out_filepath, 'w+')
     f.write('vertex ID\t\tchannel potential [V]\t\tfermi energy above CB [eV]\n')
     for index, (pot, fermi, cb) in enumerate(zip(potential_list, fermi_energy_list, conduction_band_list)):
@@ -55,7 +57,7 @@ def parsePlotFile(file_path):
 
 
 def test():
-    parsePlotFile(r'E:\@Workstation.TCAD\SimCTM\init_triple_sde_des.plt')
+    parsePlotFile()
     return
 
 if __name__ == '__main__': test()

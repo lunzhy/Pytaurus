@@ -122,7 +122,7 @@ class TripleCells:
         return
 
     def writeChannelPoints(self):
-        points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.ExDataFile_Channel)
+        points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.ExPoints_Subs)
         f = open(points_filepath, 'w+')
         f.write('vertex ID\t\tx coordinate [nm]\t\ty coordinate [nm]\n')
         for id, tup_points in enumerate(self.points):

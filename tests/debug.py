@@ -8,6 +8,7 @@ import pytaurus.sentaurus as sen
 import pytaurus.sentaurus.sse as sse
 import pytaurus.sentaurus.sde as sde
 import pytaurus.sentaurus.callsent as callsent
+import pytaurus.sentaurus.extract as extr
 
 def cleanDebugEnv():
     logfile_path = os.path.join(platform.Debug_Directory, sen.Logfile_Sse)
@@ -20,15 +21,18 @@ def cleanDebugEnv():
     return
 
 def test_debug():
-    cleanDebugEnv()
-    trip_cells = sse.TripleCells(platform.Debug_Directory)
+    # cleanDebugEnv()
+    debug_prj_path = platform.Debug_Directory
+    trip_cells = sse.TripleCells(debug_prj_path)
     trip_cells.build()
     sse_cmd = sse.SseCmdFile(trip_cells)
     sse_cmd.build()
     sde_cmd = sde.SdeCmdFile(trip_cells)
     sde_cmd.build()
-    callsent.callSse(sse_cmd)
-    callsent.callSdevice(sde_cmd)
+    # callsent.callSse(sse_cmd)
+    # callsent.callSdevice(sde_cmd)
+    sde.movePlotFile(debug_prj_path)
+    extr.parsePlotFile(debug_prj_path)
     return
 
 
