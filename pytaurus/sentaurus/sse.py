@@ -3,6 +3,7 @@ import os, sys, re
 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
 if not path in sys.path:
     sys.path.append(path)
+import pytaurus.platform as platform
 import pytaurus.sentaurus as sen
 
 
@@ -10,7 +11,7 @@ class TripleCells:
     def __init__(self, prj_path):
         self.current_material = ''
         self.params = {}
-        self.matParams = {}
+        self.mat_params = {}
         self.user_param_path = os.path.join(prj_path, sen.User_Param_File)
         self.points = []
         return
@@ -30,7 +31,7 @@ class TripleCells:
         if param == 'material':
             self.current_material = value
         if param == 'dielectricConstant':
-            self.matParams[(self.current_material, param)] = value
+            self.mat_params[(self.current_material, param)] = value
         return
 
     def readParamFile(self, file_path):
@@ -46,10 +47,10 @@ class TripleCells:
         return self.params[name]
 
     def getMaterialParam(self, name):
-        return self.matParams[name]
+        return self.mat_params[name]
 
     def build(self):
-        default_param_path = sen.Default_Param_Path
+        default_param_path = platform.Default_Param_Path
         self.readParamFile(default_param_path)
         self.readParamFile(self.user_param_path)
         self.setNonOccur()
@@ -60,14 +61,14 @@ class TripleCells:
     def setEquiStackThick(self):
         tunnel_thick = self.params['tc.tunnel.thick']
         tunnel_material = self.params['tc.tunnel.material']
-        tunnel_dielectric = self.matParams[(tunnel_material, 'dielectricConstant')]
+        tunnel_dielectric = self.mat_params[(tunnel_material, 'dielectricConstant')]
         trap_thick = self.params['tc.trap.thick']
         trap_material = self.params['tc.trap.material']
-        trap_dielectric = self.matParams[(trap_material, 'dielectricConstant')]
+        trap_dielectric = self.mat_params[(trap_material, 'dielectricConstant')]
         block_thick = self.params['tc.block.thick']
         block_material = self.params['tc.block.material']
-        block_dielectric = self.matParams[(block_material, 'dielectricConstant')]
-        SiO2_dielectric = self.matParams[('SiO2', 'dielectricConstant')]
+        block_dielectric = self.mat_params[(block_material, 'dielectricConstant')]
+        SiO2_dielectric = self.mat_params[('SiO2', 'dielectricConstant')]
         equi_stack_thick = (float(tunnel_thick) / float(tunnel_dielectric) + float(trap_thick) / float(trap_dielectric)
                             + float(block_thick) / float(block_dielectric)) * float(SiO2_dielectric)
         self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick)
@@ -175,6 +176,7 @@ class SseCmdFile:
     def creatCmdLines(self):
         template = open(self.template_file)
         end_count = 0
+        put_flag = False
         for line in template.readlines():
             if '<end>' in line:
                 end_count += 1
@@ -182,18 +184,18 @@ class SseCmdFile:
             if end_count == 0:
                 new_line = self.replaceLine(line)
                 self.cmd_lines.append(new_line)
-                # put new line
             elif end_count == 1 or end_count == 3:
                 self.cmd_lines.append(line)
-                # put new line
             else: # end_count == 2
-                self.putRegionGrids()
+                if not put_flag:
+                    self.putRegionGrids()
+                    put_flag = True
         template.close()
         return
 
     def writeCmdFile(self, file_name):
         file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir,
-                                 'resources', file_name)
+                                 'out', file_name)
         f = open(file_path, 'w+')
         self.creatCmdLines()
         f.writelines(self.cmd_lines)
@@ -202,15 +204,15 @@ class SseCmdFile:
 
 
 def test():
-    trip_cells = TripleCells(sen.Directory_Debug)
+    trip_cells = TripleCells(platform.Debug_Directory)
     trip_cells.build()
     print(trip_cells.points)
     print(trip_cells.params)
     #print(trip_cells.getParam('tc.stack.thick'))
     #print(trip_cells.getMaterialParam(('SiO2', 'dielectricConstant')))
-    #sse = SseCmdFile(trip_cells)
+    sse = SseCmdFile(trip_cells)
     #new = sse.replaceLine('(define ThicknessGate tc.iso.thick%)    ;(defineThicknessGate 10)')
-    #sse.writeCmdFile('a.txt')
+    sse.writeCmdFile('a.txt')
     #print(os.path.dirname(__file__))
     return
 
