@@ -11,6 +11,8 @@ def parsePlotFile(prj_path):
     fermi_energy_list = []
     conduction_band_list = []
     file_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_File)
+    if not os.path.exists(file_path):
+        file_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_File_Init)
     f = open(file_path)
     content = f.read()
     f.close()

@@ -18,10 +18,14 @@ def cleanDebugEnv():
     for file in os.listdir(sentrun_path):
         file_path = os.path.join(sentrun_path, file)
         os.remove(file_path)
+    exchange_path = os.path.join(platform.Debug_Directory, sen.Folder_Exchange_Data)
+    for file in os.listdir(exchange_path):
+        file_path = os.path.join(exchange_path, file)
+        os.remove(file_path)
     return
 
 def test_debug():
-    # cleanDebugEnv()
+    cleanDebugEnv()
     debug_prj_path = platform.Debug_Directory
     trip_cells = sse.TripleCells(debug_prj_path)
     trip_cells.build()
@@ -29,8 +33,8 @@ def test_debug():
     sse_cmd.build()
     sde_cmd = sde.SdeCmdFile(trip_cells)
     sde_cmd.build()
-    # callsent.callSse(sse_cmd)
-    # callsent.callSdevice(sde_cmd)
+    callsent.callSse(sse_cmd)
+    callsent.callSdevice(sde_cmd)
     sde.movePlotFile(debug_prj_path)
     extr.parsePlotFile(debug_prj_path)
     return

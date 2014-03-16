@@ -193,7 +193,7 @@ class SseCmdFile:
         end_count = 0
         put_flag = False
         for line in template.readlines():
-            if '<end>' in line:
+            if '<split>' in line:
                 end_count += 1
                 continue
             if end_count == 0:

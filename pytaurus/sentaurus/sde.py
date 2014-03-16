@@ -9,6 +9,8 @@ import pytaurus.sentaurus as sen
 
 def movePlotFile(prj_path):
     origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File)
+    if not os.path.exists(origin_path):
+        origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Init)
     dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data)
     shutil.copy(origin_path, dst_path)
     return

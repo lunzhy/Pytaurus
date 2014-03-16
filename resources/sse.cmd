@@ -10,18 +10,18 @@
 (define ThicknessGate %tc.iso.thick%)               ;(define ThicknessGate 10)
 (define ThicknessStack %tc.stack.thick%)            ;(define ThicknessStack 5)
 (define ThicknessSubstrate 80)
+(define LengthIsolation1 %tc.iso1.width%)           ;(define LengthIsolation1 30)
 (define LengthGate1 %tc.gate1.width%)               ;(define LengthGate1 45)
 (define LengthIsolation2 %tc.iso2.width%)           ;(define LengthIsolation2 30)
 (define LengthGate2 %tc.gate2.width%)               ;(define LengthGate2 45)
 (define LengthIsolation3 %tc.iso3.width%)           ;(define LengthIsolation3 30)
 (define LengthGate3 %tc.gate3.width%)               ;(define LengthGate3 45)
-(define LengthIsolation1 LengthIsolation2)          ;(define LengthIsolation1 30)
-(define LengthIsolation4 LengthIsolation3)          ;(define LengthIsolation4 30)
+(define LengthIsolation4 %tc.iso4.width%)           ;(define LengthIsolation4 30)
 (define SubstrateDoping 5e18)
 (define JunctionDepth 45)
 (define ChannelDepth 15)
 
-<end>
+<split>
 
 ;variables used in this command file
 (define Nsubs SubstrateDoping)
@@ -78,7 +78,7 @@
 ;(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.iso1.gr3")
 (sdegeo:create-rectangle (position lX_i1 bY_stack 0) (position rX_i1 tY_stack 0) "SiO2" "R.iso1.stack")
 
-<end>
+<split>
 
 ;;create regions under gate 1
 (define lX_section rX_i1)
@@ -131,6 +131,8 @@
 (sdegeo:create-rectangle (position rX_r1 bY_stack 0) (position rX_r2 tY_stack 0) "SiO2" "R.gate3.gr2")
 (sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.gate3.gr3")
 
+<split>
+
 ;;create regions under isolation 4
 ;(define lX_section rX_g3)
 ;(define Lgrid (/ Liso4 3))
@@ -142,7 +144,6 @@
 ;(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.iso4.gr3")
 (sdegeo:create-rectangle (position rX_g3 bY_stack 0) (position rX_i4 tY_stack 0) "SiO2" "R.iso4.stack")
 
-<end>
 
 ;create isolation and gate layer
 (sdegeo:create-rectangle (position lX_stack tY_stack 0) (position rX_i1 tY_gate 0) "Nitride" "R.iso1")
