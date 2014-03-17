@@ -47,7 +47,7 @@ class TripleCells:
     def getParam(self, name):
         return self.params[name]
 
-    def getMaterialParam(self, name):
+    def getMatParam(self, name):
         return self.mat_params[name]
 
     def build(self):
@@ -73,7 +73,7 @@ class TripleCells:
         SiO2_dielectric = self.mat_params[('SiO2', 'dielectricConstant')]
         equi_stack_thick = (float(tunnel_thick) / float(tunnel_dielectric) + float(trap_thick) / float(trap_dielectric)
                             + float(block_thick) / float(block_dielectric)) * float(SiO2_dielectric)
-        self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick)
+        self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick) # in nm
         return
 
     def setNonOccur(self):
@@ -234,7 +234,7 @@ def test():
     print(trip_cells.points)
     print(trip_cells.params)
     #print(trip_cells.getParam('tc.stack.thick'))
-    #print(trip_cells.getMaterialParam(('SiO2', 'dielectricConstant')))
+    #print(trip_cells.getMatParam(('SiO2', 'dielectricConstant')))
     sse = SseCmdFile(trip_cells)
     #new = sse.replaceLine('(define ThicknessGate tc.iso.thick%)    ;(defineThicknessGate 10)')
     #sse.writeCmdFile('a.txt')

@@ -23,7 +23,9 @@ Physics
     Recombination( SRH(DopingDep) )
 }
 
-*Physcis (RegionInterface = "")
+<%charge%>
+
+*Physics (RegionInterface = "")
 *{
 *   Traps (FixedCharge Conc=)
 *}

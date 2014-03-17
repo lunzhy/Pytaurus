@@ -2,6 +2,7 @@ __author__ = 'Lunzhy'
 
 #paramter file name
 User_Param_File = r'user.param'
+Charge_File = r'charge.in'
 
 #the template filename in resource
 Resource_Sse_File = r'triple_cell.cmd'
@@ -25,3 +26,6 @@ Plot_File_Init = r'triple_sde_des.plt'
 #names of file for log
 Logfile_Sse = r'sse_run.log'
 Logfile_Sdevice = r'sde_run.log'
+
+#physics constant
+eps0 = 8.854187817e-14 # F/cm

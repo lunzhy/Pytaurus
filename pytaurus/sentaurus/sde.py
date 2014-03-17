@@ -25,11 +25,13 @@ class SdeCmdFile():
                                                  os.pardir, os.pardir, 'resources', sen.Resource_Sde_File))
         self.template_filepath = file_path
         self.cmd_lines = []
+        self.lines_charge = []
         self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sde_Cmd_File)
         return
 
     def build(self):
         self.readChannelVerts()
+        self.readInterfaceCharge()
         self.setParameters()
         self.writeCmdFile()
         self.copyCmdFileToPrj()
@@ -53,7 +55,10 @@ class SdeCmdFile():
         return
 
     def setParameters(self):
+        # tdr file
         self.params['grid.tdr'] = sen.Tdr_File
+
+        # parameters from structure
         params_from_structure = ['tc.gate1.workfunction', 'tc.gate2.workfunction', 'tc.gate3.workfunction',
                                  'tc.gate1.voltage', 'tc.gate2.voltage', 'tc.gate3.voltage', 'tc.drain.voltage']
         for param in params_from_structure:
@@ -64,6 +69,9 @@ class SdeCmdFile():
         for key, coord_tup in self.points.items():
             points += ('\t\t%s\n' % (coord_tup,))
         self.params['points'] = points
+
+        # interface charge concentration
+        self.param['charge'] = self.lines_charge
         return
 
     def replaceLine(self, line):
@@ -99,6 +107,36 @@ class SdeCmdFile():
 
         shutil.copy(self.cmd_filepath, dirToCheck)
         return
+
+    def readInterfaceCharge(self):
+        interface_filepath = os.path.join(self.prj_path, sen.Charge_File)
+        file = open(interface_filepath)
+        file.readline() #read the information line
+        regions_name = ['gate1', 'iso2', 'gate2', 'iso3', 'gate3']
+        regions_grid = [int(self.params['tc.gate1.width.grid']), int(self.params['tc.iso2.width.grid']),
+                        int(self.params['tc.gate2.width.grid']), int(self.params['tc.iso3.width.grid']),
+                        int(self.params['tc.gate3.width.grid'])]
+        for region, grid_number in regions_name, regions_grid:
+            for grid_index in (1, grid_num+1):
+                file_line = file.readline()
+                voltage_shift = re.split('\s+', file_line)[2] # the third is voltage shift
+                charge_conc = self.calculateChargeConc(voltage_shift)
+                region_grid_name = 'R.%s.gr%s' % (region, grid_index)
+                line_phys = 'Physics (RegionInterface = "%s")\n' % region_grid_name
+                self.lines_charge.append(line_phys)
+                line_left_brace = '{\n'
+                self.lines_charge.append(line_left_brace)
+                line_trap = 'Traps (FixedCharge Conc=%s)\n' % charge_conc
+                line_rigth_brace = '}\n'
+                self.lines_charge.append(line_rigth_brace)
+        return
+
+    def calculateChargeConc(self, voltage_shift):
+        nm_in_cm = 1e-7
+        epsilon_sio2 = self.triple_cell.getMatParam[('SiO2', 'dielectricConstant')]
+        stack_thick_in_cm = self.triple_cell.getParam('tc.stack.thick') * nm_in_cm
+        charge_conc = sen.eps0 * epsilon_sio2 * voltage_shift / stack_thick_in_cm
+        return charge_conc
 
 
 def test():
