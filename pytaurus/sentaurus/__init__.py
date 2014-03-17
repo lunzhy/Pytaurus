@@ -4,7 +4,7 @@ __author__ = 'Lunzhy'
 User_Param_File = r'user.param'
 
 #the template filename in resource
-Resource_Sse_File = r'sse.cmd'
+Resource_Sse_File = r'triple_cell.cmd'
 Resource_Sde_File = r'sdevice.cmd'
 
 #the folder to run sentaurus under project folder
