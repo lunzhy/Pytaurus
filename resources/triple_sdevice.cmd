@@ -67,7 +67,7 @@ Solve
     ){ Coupled { Poisson Electron Hole }
        CurrentPlot ( Time=(-1)) }
 
-    NewCurrentPrefix="init_"
+    NewCurrentPrefix="final_"
     Quasistationary
     (
         InitialStep=1e-3        Increment=1.6       Decrement=4
