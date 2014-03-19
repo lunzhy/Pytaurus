@@ -5,7 +5,7 @@ User_Param_File = r'user.param'
 
 #the template filename in resource
 Resource_Sse_File = r'triple_cell.cmd'
-Resource_Sde_File = r'sdevice.cmd'
+Resource_Sde_File = r'triple_sdevice.cmd'
 
 #the folder to run sentaurus under project folder
 Folder_Run_Sentaurus = r'sentrun'
@@ -23,7 +23,7 @@ Charge_File = r'charge.in'
 Exchange_Data_Subs = r'substrate.in'
 Tdr_File = r'triple_msh.tdr'
 Plot_Subs_File = r'potential_fermi.out'
-Plot_File_Sentaurus = r'init_triple_sde_des.plt'
+Plot_File_Sentaurus = r'final_triple_sde_des.plt'
 Plot_File_Init_Sentaurus = r'triple_sde_des.plt'
 
 
