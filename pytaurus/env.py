@@ -5,14 +5,14 @@ if not path in sys.path:
     sys.path.append(path)
 import pytaurus.sentaurus as sen
 
+# platform-dependent global variables
 if platform.system() == 'Linux':
-    #the file path of default parameter file
-    Default_Param_Path = r'/home/lunzhy/SimCTM/default.param'
-
-    #the directory path for debugging
-    Debug_Directory = r'/home/lunzhy/SimCTM/debug'
+    Default_Param_Path = r'/home/lunzhy/SimCTM/default.param'#the file path of default parameter file
+    Debug_Directory = r'/home/lunzhy/SimCTM/debug'# the directory path for debugging
 elif platform.system() == 'Windows':
-    pass
+    Default_Param_Path = r'E:\PhD Study\SimCTM\default.param'# the file path of default parameter file
+    Debug_Directory = r'E:\PhD Study\SimCTM\SctmTest\SolverPackTest'# the directory path for debugging
+
 
 # method to convert CRLF with LF in parameter file because it may cause problems when reading them from SimCTM
 def convertCRLFtoLF(file_path):
