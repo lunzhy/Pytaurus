@@ -217,6 +217,9 @@
 ;stack
 (sdedr:define-refinement-size "Ref.stack" 5e-3  3e-3  1e-3  1e-3)
 (sdedr:define-refinement-material "PlaceRef.stack" "Ref.stack" "SiO2")
+(sdedr:define-refinement-size "Ref.stack.charge" 1e-3  3e-3  0.1e-3  1e-3)
+(sdedr:define-refeval-window "RefWin.stack.charge" "Rectangle" (position rX_i1 bY_stack 0) (position rX_g3 tY_stack 0))
+(sdedr:define-refinement-placement "PlaceRF.stack.charge" "Ref.stack.charge" "RefWin.stack.charge")
 
 ;isolation region
 (sdedr:define-refinement-size "Ref.iso" 20e-3  20e-3  15e-3  15e-3)

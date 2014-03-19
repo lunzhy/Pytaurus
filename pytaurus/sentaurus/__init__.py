@@ -2,7 +2,6 @@ __author__ = 'Lunzhy'
 
 #paramter file name
 User_Param_File = r'user.param'
-Charge_File = r'charge.in'
 
 #the template filename in resource
 Resource_Sse_File = r'triple_cell.cmd'
@@ -17,15 +16,21 @@ Sse_Cmd_File = r'sse_triple.cmd'
 Sde_Cmd_File = r'sde_triple.cmd'
 
 #names of file for data exchange
-ExPoints_Subs = r'subs_points.in'
-ExData_Subs = r'substrate.in'
+#from SimCTM
+Points_Location_Subs = r'subs_points.in'
+Charge_File = r'charge.in'
+#from Pytaurus
+Exchange_Data_Subs = r'substrate.in'
 Tdr_File = r'triple_msh.tdr'
-Plot_File = r'init_triple_sde_des.plt'
-Plot_File_Init = r'triple_sde_des.plt'
+Plot_Subs_File = r'potential_fermi.out'
+Plot_File_Sentaurus = r'init_triple_sde_des.plt'
+Plot_File_Init_Sentaurus = r'triple_sde_des.plt'
+
 
 #names of file for log
 Logfile_Sse = r'sse_run.log'
 Logfile_Sdevice = r'sde_run.log'
 
 #physics constant
-eps0 = 8.854187817e-14 # F/cm
+eps0 = 8.854187817e-14 # [F/cm]
+q_charge = 1.602176487e-19 # [C]

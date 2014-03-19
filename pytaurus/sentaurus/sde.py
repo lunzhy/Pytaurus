@@ -8,10 +8,10 @@ import pytaurus.sentaurus as sen
 
 
 def movePlotFile(prj_path):
-    origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File)
+    origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Sentaurus)
     if not os.path.exists(origin_path):
-        origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Init)
-    dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data)
+        origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Init_Sentaurus)
+    dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_Subs_File)
     shutil.copy(origin_path, dst_path)
     return
 
@@ -19,13 +19,13 @@ class SdeCmdFile():
     def __init__(self, triple_cell):
         self.params = {}
         self.points = {}
-        self.triple_cell = triple_cell
+        self.structure = triple_cell
         self.prj_path = triple_cell.prj_path
         file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                  os.pardir, os.pardir, 'resources', sen.Resource_Sde_File))
         self.template_filepath = file_path
         self.cmd_lines = []
-        self.lines_charge = []
+        self.lines_charge = ''
         self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sde_Cmd_File)
         return
 
@@ -39,7 +39,7 @@ class SdeCmdFile():
 
     def readChannelVerts(self):
         nm_in_um = 1e-3
-        verts_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.ExPoints_Subs)
+        verts_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Points_Location_Subs)
         f = open(verts_filepath)
         for line in f.readlines()[1:]:
             values = re.split('\s+', line)
@@ -62,7 +62,7 @@ class SdeCmdFile():
         params_from_structure = ['tc.gate1.workfunction', 'tc.gate2.workfunction', 'tc.gate3.workfunction',
                                  'tc.gate1.voltage', 'tc.gate2.voltage', 'tc.gate3.voltage', 'tc.drain.voltage']
         for param in params_from_structure:
-            self.params[param] = self.triple_cell.getParam(param)
+            self.params[param] = self.structure.getParam(param)
 
         # set the points
         points = ''
@@ -71,7 +71,7 @@ class SdeCmdFile():
         self.params['points'] = points
 
         # interface charge concentration
-        self.param['charge'] = self.lines_charge
+        self.params['charge'] = self.lines_charge
         return
 
     def replaceLine(self, line):
@@ -109,33 +109,38 @@ class SdeCmdFile():
         return
 
     def readInterfaceCharge(self):
-        interface_filepath = os.path.join(self.prj_path, sen.Charge_File)
+        interface_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Charge_File)
         file = open(interface_filepath)
         file.readline() #read the information line
         regions_name = ['gate1', 'iso2', 'gate2', 'iso3', 'gate3']
-        regions_grid = [int(self.params['tc.gate1.width.grid']), int(self.params['tc.iso2.width.grid']),
-                        int(self.params['tc.gate2.width.grid']), int(self.params['tc.iso3.width.grid']),
-                        int(self.params['tc.gate3.width.grid'])]
-        for region, grid_number in regions_name, regions_grid:
-            for grid_index in (1, grid_num+1):
+        regions_grid = [int(self.structure.getParam('tc.gate1.width.grid')),
+                        int(self.structure.getParam('tc.iso2.width.grid')),
+                        int(self.structure.getParam('tc.gate2.width.grid')),
+                        int(self.structure.getParam('tc.iso3.width.grid')),
+                        int(self.structure.getParam('tc.gate3.width.grid'))]
+        for region, grid_num in zip(regions_name, regions_grid):
+            for grid_index in range(1, grid_num+1):
                 file_line = file.readline()
-                voltage_shift = re.split('\s+', file_line)[2] # the third is voltage shift
+                voltage_shift = float(re.split('\s+', file_line)[2]) # the third is voltage shift
                 charge_conc = self.calculateChargeConc(voltage_shift)
                 region_grid_name = 'R.%s.gr%s' % (region, grid_index)
-                line_phys = 'Physics (RegionInterface = "%s")\n' % region_grid_name
-                self.lines_charge.append(line_phys)
+                line_phys = 'Physics (RegionInterface = "R.subs/%s")\n' % region_grid_name
+                self.lines_charge += line_phys
                 line_left_brace = '{\n'
-                self.lines_charge.append(line_left_brace)
-                line_trap = 'Traps (FixedCharge Conc=%s)\n' % charge_conc
-                line_rigth_brace = '}\n'
-                self.lines_charge.append(line_rigth_brace)
+                self.lines_charge += line_left_brace
+                # note that it is negative charge
+                line_trap = 'Traps (FixedCharge Conc=-%.3e)\n' % charge_conc
+                self.lines_charge += line_trap
+                line_rigth_brace = '}\n\n'
+                self.lines_charge += line_rigth_brace
+
         return
 
     def calculateChargeConc(self, voltage_shift):
         nm_in_cm = 1e-7
-        epsilon_sio2 = self.triple_cell.getMatParam[('SiO2', 'dielectricConstant')]
-        stack_thick_in_cm = self.triple_cell.getParam('tc.stack.thick') * nm_in_cm
-        charge_conc = sen.eps0 * epsilon_sio2 * voltage_shift / stack_thick_in_cm
+        epsilon_sio2 = float(self.structure.getMatParam(('SiO2', 'dielectricConstant')))
+        stack_thick_in_cm = float(self.structure.getParam('tc.stack.thick')) * nm_in_cm
+        charge_conc = voltage_shift * (sen.eps0 * epsilon_sio2) / stack_thick_in_cm / sen.q_charge
         return charge_conc
 
 

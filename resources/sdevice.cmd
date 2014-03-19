@@ -23,7 +23,7 @@ Physics
     Recombination( SRH(DopingDep) )
 }
 
-<%charge%>
+%charge%
 
 *Physics (RegionInterface = "")
 *{

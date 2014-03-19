@@ -3,7 +3,7 @@ import os, sys, re, shutil
 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
 if not path in sys.path:
     sys.path.append(path)
-import pytaurus.platform as platform
+import pytaurus.env as platform
 import pytaurus.sentaurus as sen
 
 
@@ -122,7 +122,7 @@ class TripleCells:
         return
 
     def writeChannelPoints(self):
-        points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.ExPoints_Subs)
+        points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Points_Location_Subs)
         f = open(points_filepath, 'w+')
         f.write('vertex ID\t\tx coordinate [nm]\t\ty coordinate [nm]\n')
         for id, tup_points in enumerate(self.points):

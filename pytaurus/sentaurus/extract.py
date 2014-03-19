@@ -10,9 +10,7 @@ def parsePlotFile(prj_path):
     potential_list = []
     fermi_energy_list = []
     conduction_band_list = []
-    file_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_File)
-    if not os.path.exists(file_path):
-        file_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_File_Init)
+    file_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_Subs_File)
     f = open(file_path)
     content = f.read()
     f.close()
@@ -47,7 +45,7 @@ def parsePlotFile(prj_path):
             conduction_band_list.append(value)
 
     #put file
-    out_filepath = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.ExData_Subs)
+    out_filepath = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Exchange_Data_Subs)
     f = open(out_filepath, 'w+')
     f.write('vertex ID\t\tchannel potential [V]\t\tfermi energy above CB [eV]\n')
     for index, (pot, fermi, cb) in enumerate(zip(potential_list, fermi_energy_list, conduction_band_list)):
