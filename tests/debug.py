@@ -1,6 +1,6 @@
 __author__ = 'lunzhy'
 import os, sys
-path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir)
+path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir))
 if not path in sys.path:
     sys.path.append(path)
 import pytaurus.env as env
@@ -17,6 +17,7 @@ def cleanDebugEnv():
     for log_file in logfile_paths:
         if os.path.exists(log_file):
             os.remove(log_file)
+
     #clean sentaurus running folder
     sentrun_path = os.path.join(env.Debug_Directory, sen.Folder_Run_Sentaurus)
     for file in os.listdir(sentrun_path):

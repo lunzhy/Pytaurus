@@ -1,6 +1,6 @@
 __author__ = 'Lunzhy'
 import os, sys, re
-path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
+path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir))
 if not path in sys.path:
     sys.path.append(path)
 import pytaurus.sentaurus as sen
@@ -49,7 +49,7 @@ def parsePlotFile(prj_path):
     f = open(out_filepath, 'w+')
     f.write('vertex ID\t\tchannel potential [V]\t\tfermi energy above CB [eV]\n')
     for index, (pot, fermi, cb) in enumerate(zip(potential_list, fermi_energy_list, conduction_band_list)):
-        fermi_above = float(fermi) - float(cb)
+        fermi_above = float(fermi) - float(cb) # fermi energy above conduction band
         line = '%s %s %s\n' % (index, pot, fermi_above)
         f.write(line)
     f.close()
