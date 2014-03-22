@@ -1,6 +1,6 @@
 __author__ = 'lunzhy'
 import platform, os, sys
-path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir)
+path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir))
 if not path in sys.path:
     sys.path.append(path)
 import pytaurus.sentaurus as sen
@@ -20,7 +20,6 @@ def convertCRLFtoLF(file_path):
         data = f.read()
     newdata = data.replace(b'\r\n', b'\n')
     if newdata != data:
-        print('converted')
         with open(file_path, 'wb') as f:
             f.write(newdata)
     return
