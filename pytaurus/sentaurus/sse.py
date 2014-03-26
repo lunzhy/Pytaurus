@@ -28,6 +28,9 @@ class TripleCells:
         # parse structure parameters
         if 'tc.' in param:
             self.params[param] = value
+        # parse other parameters
+        if 'subs' in param:
+            self.params[param] = value
         # parse material parameters
         if param == 'material':
             self.current_material = value
