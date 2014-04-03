@@ -7,6 +7,7 @@ import pytaurus.env as env
 import pytaurus.sentaurus as sen
 import pytaurus.sentaurus.sse as sse
 import pytaurus.sentaurus.sde as sde
+import pytaurus.sentaurus.inspect as inspect
 import pytaurus.sentaurus.callsent as callsent
 import pytaurus.sentaurus.extract as extr
 
@@ -49,4 +50,10 @@ def test_debug():
     return
 
 
-if __name__ == '__main__': test_debug()
+def test_inspect():
+    debug_prj_path = env.Debug_Directory
+    trip_cells = sse.TripleCells(debug_prj_path)
+    trip_cells.build()
+    ins_cmd = inspect.InspectCmdFile(trip_cells)
+
+if __name__ == '__main__': test_inspect()

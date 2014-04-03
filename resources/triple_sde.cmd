@@ -124,8 +124,8 @@ Plot
     * TotalRecombination
 
     *-Doping Profiles
-    * Doping
-    * DonorConcentration AcceptorConcentration
+    Doping
+    DonorConcentration AcceptorConcentration
 
     *-Band structure
     BandGap 

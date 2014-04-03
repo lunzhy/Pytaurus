@@ -37,6 +37,15 @@ def callSdevice(sde_cmd):
     return
 
 
+def callInspect(ins_cmd):
+    prj_path = ins_cmd.prj_path
+    chdirToSentrun(prj_path)
+    print('\nExtracting threshold voltage.\n')
+    command = 'inspect -batch -f %s' % sen.Inspect_Cmd_File
+    output = subprocess.check_output(command.split(' '))
+    output_str = output.decode(encoding='UTF-8')
+    return output_str
+
 def test():
     callSse(platform.Debug_Directory)
     callSdevice(platform.Debug_Directory)

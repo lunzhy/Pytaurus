@@ -15,14 +15,26 @@ def movePlotFile(prj_path):
     shutil.copy(origin_path, dst_path)
     return
 
+
+def copyChargeFile(prj_path, charge_file):
+    dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Charge_File)
+    shutil.copy(charge_file, dst_path)
+    return
+
+
 class SdeCmdFile():
-    def __init__(self, triple_cell):
+    def __init__(self, triple_cell, solve_vth=False):
+        self.solve_vth = solve_vth
         self.params = {}
         self.points = {}
         self.structure = triple_cell
         self.prj_path = triple_cell.prj_path
-        file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                                 os.pardir, os.pardir, 'resources', sen.Resource_Sde_File))
+        if self.solve_vth is False:
+            file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                                     os.pardir, os.pardir, 'resources', sen.Resource_Sde_File))
+        else:
+            file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                                     os.pardir, os.pardir, 'resources', sen.Resource_Sde_File_Vth))
         self.template_filepath = file_path
         self.cmd_lines = []
         self.lines_charge = ''
@@ -72,6 +84,12 @@ class SdeCmdFile():
 
         # interface charge concentration
         self.params['charge'] = self.lines_charge
+
+        # deal with solve_vth condition
+        if self.solve_vth:
+            params_for_solvevth = ['tc.gate.voltage.pass', 'tc.gate.voltage.read', 'tc.drain.voltage.read']
+            for param in params_for_solvevth:
+                self.params[param] = self.structure.getParam(param)
         return
 
     def replaceLine(self, line):
@@ -111,7 +129,7 @@ class SdeCmdFile():
     def readInterfaceCharge(self):
         interface_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Charge_File)
         file = open(interface_filepath)
-        file.readline() #read the information line
+        infoline = file.readline() #read the information line
         regions_name = ['gate1', 'iso2', 'gate2', 'iso3', 'gate3']
         regions_grid = [int(self.structure.getParam('tc.gate1.width.grid')),
                         int(self.structure.getParam('tc.iso2.width.grid')),
