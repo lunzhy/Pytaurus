@@ -13,13 +13,14 @@ import pytaurus.sentaurus.inspect as inspect
 import pytaurus.sentaurus.callsent as callsent
 import pytaurus.sentaurus.extract as extr
 
-Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth']
+Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'parsevth']
 # the argument list
 # pyt clean [project_path]                      | clean the files except the remained in this folder
 # pyt prepare [project_path]                    | mkdir all the folders needed by the SimCTM
 # pyt structure [project_path]                  | build structure using sentanrus
 # pyt solve [prject_path]                       | run the simulation prject in this folder
 # pyt solvevth [project_path] [time_list]       | solve vth using sentaurus of the project
+# pyt parsevth [prject_path]                    | calculate vth through flatband shift of each time step
 
 
 def isSolveVthTime(time):
@@ -92,6 +93,10 @@ def senSolveVthSingleTime(prj_path, trip_cells, time):
     return
 
 
+def senParseVth(prj_path, trip_cells):
+    extr.parseVth(prj_path, trip_cells)
+    return
+
 
 def main():
     argc = len(sys.argv)
@@ -113,6 +118,8 @@ def main():
             senPotential(prj_path, trip_cells)
         elif mode == 'solvevth':
             senSolveVth(prj_path, trip_cells)
+        elif mode == 'parsevth':
+            senParseVth(prj_path, trip_cells)
         else:
             print('Wrong argument keyword.')
             return

@@ -34,6 +34,7 @@ Folder_Substrate = r'Substrate'
 Charge_File_Prefix = r'VfbInterface'
 Folder_Miscellaneous = r'Miscellaneous'
 File_Vth = r'Vth.txt'
+File_Parsed_Vth = r'Vth_flatband.txt'
 
 #names of file for log
 Logfile_Sse = r'sse_run.log'

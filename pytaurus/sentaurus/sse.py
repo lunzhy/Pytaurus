@@ -14,7 +14,7 @@ class TripleCells:
         self.params = {}
         self.mat_params = {}
         self.user_param_path = os.path.join(prj_path, sen.User_Param_File)
-        self.points = []
+        self.channel_points = []
         return
 
     def isCommentOrBlank(self, line):
@@ -93,42 +93,42 @@ class TripleCells:
         grid_length = float(self.params['tc.gate1.width']) / grid_num
         for grid in range(grid_num):
             x_coord = offset + grid * grid_length
-            self.points.append((x_coord, y_coord))
+            self.channel_points.append((x_coord, y_coord))
         # under iso2
         offset += float(self.params['tc.gate1.width'])
         grid_num = int(self.params['tc.iso2.width.grid'])
         grid_length = float(self.params['tc.iso2.width']) / grid_num
         for grid in range(grid_num):
             x_coord = offset + grid * grid_length
-            self.points.append((x_coord, y_coord))
+            self.channel_points.append((x_coord, y_coord))
         # under gate2
         offset += float(self.params['tc.iso2.width'])
         grid_num = int(self.params['tc.gate2.width.grid'])
         grid_length = float(self.params['tc.gate2.width']) / grid_num
         for grid in range(grid_num):
             x_coord = offset + grid * grid_length
-            self.points.append((x_coord, y_coord))
+            self.channel_points.append((x_coord, y_coord))
         # under iso3
         offset += float(self.params['tc.gate2.width'])
         grid_num = int(self.params['tc.iso3.width.grid'])
         grid_length = float(self.params['tc.iso3.width']) / grid_num
         for grid in range(grid_num):
             x_coord = offset + grid * grid_length
-            self.points.append((x_coord, y_coord))
+            self.channel_points.append((x_coord, y_coord))
         # under gate3
         offset += float(self.params['tc.iso3.width'])
         grid_num = int(self.params['tc.gate3.width.grid'])
         grid_length = float(self.params['tc.gate3.width']) / grid_num
         for grid in range(grid_num+1): # the last is different from previous
             x_coord = offset + grid * grid_length
-            self.points.append((x_coord, y_coord))
+            self.channel_points.append((x_coord, y_coord))
         return
 
     def writeChannelPoints(self):
         points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Points_Location_Subs)
         f = open(points_filepath, 'w+')
         f.write('vertex ID\t\tx coordinate [nm]\t\ty coordinate [nm]\n')
-        for id, tup_points in enumerate(self.points):
+        for id, tup_points in enumerate(self.channel_points):
             line = str(id) + '\t' + str(tup_points[0]) + '\t' + str(tup_points[1]) + '\n'
             f.write(line)
         f.close()
@@ -234,7 +234,7 @@ class SseCmdFile:
 def test():
     trip_cells = TripleCells(platform.Debug_Directory)
     trip_cells.build()
-    print(trip_cells.points)
+    print(trip_cells.channel_points)
     print(trip_cells.params)
     #print(trip_cells.getParam('tc.stack.thick'))
     #print(trip_cells.getMatParam(('SiO2', 'dielectricConstant')))

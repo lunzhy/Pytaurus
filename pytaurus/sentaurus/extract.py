@@ -4,6 +4,7 @@ path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), 
 if not path in sys.path:
     sys.path.append(path)
 import pytaurus.sentaurus as sen
+import pytaurus.tools as tools
 
 
 def parsePlotFile(prj_path):
@@ -65,6 +66,47 @@ def extractVth(output):
         voltage = match.group()
     voltage = float(voltage[4:])
     return voltage
+
+
+def parseVth(prj_path, trip_cells):
+    # parse effective points
+    points_file = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Points_Location_Subs)
+    channel_main_start = float(trip_cells.getParam('tc.iso1.width')) +\
+                         float(trip_cells.getParam('tc.gate1.width')) + float(trip_cells.getParam('tc.iso2.width'))
+    channel_main_end = channel_main_start + float(trip_cells.getParam('tc.gate2.width'))
+    main_points = []
+    with open(points_file) as file:
+        info = file.readline()
+        for line in file.readlines():
+            items = re.split('\s+', line)
+            vert_index, xcoord = int(items[0]), float(items[1])
+            if xcoord >= channel_main_start and xcoord <= channel_main_end:
+                main_points.append(vert_index)
+    vfb_dir = os.path.join(prj_path, sen.Folder_Substrate)
+    time_vth_list = []
+    for file in os.listdir(vfb_dir):
+        if sen.Charge_File_Prefix in file:
+            file_path = os.path.join(vfb_dir, file)
+            sim_time = tools.parseSimTime(file_path)
+            with open(file_path) as file:
+                info = file.readline()
+                voltage_list = []
+                for line in file.readlines():
+                    items = re.split('\s+', line)
+                    vert_left, vert_right, voltage = int(items[0]), int(items[1]), float(items[2])
+                    if vert_left in main_points and vert_right in main_points:
+                        voltage_list.append(voltage)
+            effective_voltage = sum(voltage_list) / len(voltage_list)
+            time_vth_list.append((sim_time, effective_voltage))
+
+    # organise time voltage list
+    time_vth_list = sorted(time_vth_list, key=lambda x: x[0])
+    vth_flatband_file = os.path.join(prj_path, sen.Folder_Miscellaneous, sen.File_Parsed_Vth)
+    with open(vth_flatband_file, 'w') as file:
+        for time_vth in time_vth_list:
+            file.write('%.5e\t\t%s\n' % time_vth)
+    return
+
 
 def test():
     parsePlotFile()

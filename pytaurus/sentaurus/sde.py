@@ -26,7 +26,7 @@ class SdeCmdFile():
     def __init__(self, triple_cell, solve_vth=False):
         self.solve_vth = solve_vth
         self.params = {}
-        self.points = {}
+        self.channel_points = {}
         self.structure = triple_cell
         self.prj_path = triple_cell.prj_path
         if self.solve_vth is False:
@@ -60,9 +60,9 @@ class SdeCmdFile():
             # yCoord = float(values[2]) * nm_in_um
             xCoord = float('%se-3' % values[1])
             yCoord = float('%se-3' % values[2])
-            self.points[id] = (xCoord, yCoord)
-        sorted_list = sorted(self.points.items(), key=lambda x: x[0])
-        self.points = collections.OrderedDict(sorted_list)
+            self.channel_points[id] = (xCoord, yCoord)
+        sorted_list = sorted(self.channel_points.items(), key=lambda x: x[0])
+        self.channel_points = collections.OrderedDict(sorted_list)
         f.close()
         return
 
@@ -78,7 +78,7 @@ class SdeCmdFile():
 
         # set the points
         points = ''
-        for key, coord_tup in self.points.items():
+        for key, coord_tup in self.channel_points.items():
             points += ('\t\t%s\n' % (coord_tup,))
         self.params['points'] = points
 
