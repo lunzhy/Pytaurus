@@ -1,15 +1,18 @@
+#!/usr/bin/python
 __author__ = 'lunzhy'
 import os, sys
 path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir))
 if not path in sys.path:
     sys.path.append(path)
 import pytaurus.env as env
+import pytaurus.structure as structure
 import pytaurus.sentaurus as sen
 import pytaurus.sentaurus.sse as sse
 import pytaurus.sentaurus.sde as sde
 import pytaurus.sentaurus.inspect as inspect
 import pytaurus.sentaurus.callsent as callsent
 import pytaurus.sentaurus.extract as extr
+
 
 def cleanDebugEnv():
     # clean the log file
@@ -33,6 +36,7 @@ def cleanDebugEnv():
             os.remove(file_path)
     return
 
+
 def test_debug():
     cleanDebugEnv()
     debug_prj_path = env.Debug_Directory
@@ -50,10 +54,21 @@ def test_debug():
     return
 
 
+def testTripleFull():
+    cleanDebugEnv()
+    debug_prj_path = env.Debug_Directory
+    env.convertParamFile(debug_prj_path)
+    trip_cells = structure.TripleCells(debug_prj_path, 'TripleFull')
+    trip_cells.build()
+    return
+
+
 def test_inspect():
     debug_prj_path = env.Debug_Directory
     trip_cells = sse.TripleCells(debug_prj_path)
     trip_cells.build()
     ins_cmd = inspect.InspectCmdFile(trip_cells)
 
-if __name__ == '__main__': test_inspect()
+
+if __name__ == '__main__':
+    testTripleFull()

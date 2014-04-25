@@ -29,7 +29,7 @@ def convertParamFile(prj_path):
     if platform.system() == 'Linux':
         default_param_path = Default_Param_Path
         user_param_path = os.path.join(prj_path, sen.User_Param_File)
-        # convertCRLFtoLF(default_param_path)
+        convertCRLFtoLF(default_param_path)
         convertCRLFtoLF(user_param_path)
     return
 
