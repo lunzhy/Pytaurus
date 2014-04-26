@@ -60,6 +60,8 @@ def testTripleFull():
     env.convertParamFile(debug_prj_path)
     trip_cells = structure.TripleCells(debug_prj_path, 'TripleFull')
     trip_cells.build()
+    sse_cmd = sse.SseCmdFile(trip_cells)
+    sse_cmd.build()
     return
 
 

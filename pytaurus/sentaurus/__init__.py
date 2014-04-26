@@ -4,7 +4,8 @@ __author__ = 'Lunzhy'
 User_Param_File = r'user.param'
 
 #the template filename in resource
-Resource_Sse_File = r'triple_sse.cmd'
+Resource_Sse_File_Triple = r'triple_sse.cmd'
+Resource_Sse_File_TripleFull = r'triplefull_sse.cmd'
 Resource_Sde_File = r'triple_sde.cmd'
 Resource_Ins_File = r'inspect.cmd'
 Resource_Sde_File_Vth = r'triple_sde_vth.cmd'
@@ -14,7 +15,8 @@ Folder_Run_Sentaurus = r'sentrun'
 Folder_Exchange_Data = r'exchange'
 
 #the generated command name for sse dan sdevice
-Sse_Cmd_File = r'sse_triple.cmd'
+Sse_Cmd_File_Triple = r'sse_triple.cmd'
+Sse_Cmd_File_TripleFull = r'sse_triplefull.cmd'
 Sde_Cmd_File = r'sde_triple.cmd'
 Inspect_Cmd_File = r'ins.cmd'
 

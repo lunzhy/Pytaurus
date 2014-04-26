@@ -1,0 +1,309 @@
+;in this file, all the stack region under isolations and gates can be split into grids
+
+;rX -- right x coordinate
+;lX -- left x coordinate
+;tY -- top y coordinate
+;bY -- bottom y coordinate
+
+
+;parameters from user input, thickness and length values are in [nm]
+(define ThicknessGate %tc.iso.thick%)
+(define ThicknessStack %tc.stack.thick%)
+(define ThicknessChannel 40)                        ;channel thickness is fixed in the project
+(define LengthIsolation1 (/ %tc.iso1.width% 2))
+(define LengthGate1 %tc.gate1.width%)
+(define LengthIsolation2 %tc.iso2.width%)
+(define LengthGate2 %tc.gate2.width%)
+(define LengthIsolation3 %tc.iso3.width%)
+(define LengthGate3 %tc.gate3.width%)
+(define LengthIsolation4 (/ %tc.iso4.width% 2))
+(define SourceDrainLength 30)                       ;source and drain length is fixed
+(define ChannelDoping 1e15)                         ;channel doping is fixed
+(define SourceDrainDoping 5e20)                     ;source and drain doping is fixed
+
+<split> no.1
+
+;variables used in this command file
+(define Nch ChannelDoping)
+(define Nsd SourceDrainDoping)
+
+(define Tgate (* 1e-3 ThicknessGate))
+(define Tstack (* 1e-3 ThicknessStack))
+(define Tch (* 1e-3 ThicknessChannel))
+(define Liso1 (* 1e-3 LengthIsolation1))
+(define Lgate1 (* 1e-3 LengthGate1))
+(define Liso2 (* 1e-3 LengthIsolation2))
+(define Lgate2 (* 1e-3 LengthGate2))
+(define Liso3 (* 1e-3 LengthIsolation3))
+(define Lgate3 (* 1e-3 LengthGate3))
+(define Liso4 (* 1e-3 LengthIsolation4))
+(define Lsd (* 1e-3 SourceDrainLength))
+
+(define X_zero 0)
+(define Y_zero 0)
+
+;coordinates related to channel
+(define lX_ch X_zero)
+(define tY_ch Y_zero)
+(define bY_ch (- tY_ch Tch))
+(define rX_ch (+ lX_ch Liso1 Lgate1 Liso2 Lgate2 Liso3 Lgate3 Liso4))
+
+;coordinates related to gate stack
+(define lX_stack lX_ch)
+(define bY_stack tY_ch)
+(define tY_stack (+ bY_stack Tstack))
+(define lX_i1 lX_stack);left x coordinate of isolation 1
+(define rX_i1 (+ lX_i1 Liso1))
+(define lX_g1 rX_i1)
+(define rX_g1 (+ lX_g1 Lgate1))
+(define lX_i2 rX_g1)
+(define rX_i2 (+ lX_i2 Liso2))
+(define lX_g2 rX_i2)
+(define rX_g2 (+ lX_g2 Lgate2))
+(define lX_i3 rX_g2)
+(define rX_i3 (+ lX_i3 Liso3))
+(define lX_g3 rX_i3)
+(define rX_g3 (+ lX_g3 Lgate3))
+(define lX_i4 rX_g3)
+(define rX_i4 (+ lX_i4 Liso4))
+
+;coordinates related to gate
+(define bY_gate tY_stack)
+(define tY_gate (+ bY_gate Tgate))
+
+;coordinates related to sourc and drain
+(define lX_source (- lX_stack Lsd))
+(define rX_source lX_ch)
+(define tY_source tY_ch)
+(define bY_source (- tY_source Tch))
+
+(define lX_drain rX_ch)
+(define rX_drain (+ lX_drain Lsd))
+(define tY_drain tY_ch)
+(define bY_drain (- tY_drain Tch))
+
+(define lX_source_stack lX_source)
+(define rX_source_stack rX_source)
+(define bY_source_stack tY_source)
+(define tY_source_stack (+ bY_source_stack Tstack))
+
+(define lX_drain_stack lX_drain)
+(define rX_drain_stack rX_drain)
+(define bY_drain_stack tY_drain)
+(define tY_drain_stack (+ bY_drain_stack Tstack))
+
+;create half channel and source / drain
+(sdegeo:create-rectangle (position lX_ch tY_ch 0) (position rX_ch bY_ch 0) "Silicon" "R.ch")
+(sdegeo:create-rectangle (position lX_source tY_source 0) (position rX_source bY_source 0) "Silicon" "R.source")
+(sdegeo:create-rectangle (position lX_drain tY_drain 0) (position rX_drain bY_drain 0) "Silicon" "R.drain")
+
+;create gate stack layer, 3 stack regions under each isolation or gate region, including top and bottom gate
+(define Yoffset_stack (* -1 (+ Tch Tstack)))
+
+<split> no.2
+
+;;create regions under isolation 1
+(define lX_section lX_i1) ;left x coordinate of this section, under isolation 1
+(define Lgrid (/ Liso1 3))
+(define rX_r1 (+ lX_section Lgrid)) ;region 1
+(define rX_r2 (+ rX_r1 Lgrid)) ;region 2
+(define rX_r3 (+ rX_r2 Lgrid)) ;region 3
+(sdegeo:create-rectangle (position lX_section bY_stack 0) (position rX_r1 tY_stack 0) "SiO2" "R.iso1.gr1.top")
+(sdegeo:create-rectangle (position rX_r1 bY_stack 0) (position rX_r2 tY_stack 0) "SiO2" "R.iso1.gr2.top")
+(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.iso1.gr3.top")
+(sdegeo:create-rectangle (position lX_section (+ Yoffset_stack bY_stack) 0) (position rX_r1 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso1.gr1.bot")
+(sdegeo:create-rectangle (position rX_r1 (+ Yoffset_stack bY_stack) 0) (position rX_r2 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso1.gr2.bot")
+(sdegeo:create-rectangle (position rX_r2 (+ Yoffset_stack bY_stack) 0) (position rX_r3 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso1.gr3.bot")
+
+;;create regions under gate 1
+(define lX_section lX_g1)
+(define Lgrid (/ Lgate1 3))
+(define rX_r1 (+ lX_section Lgrid)) ;region 1
+(define rX_r2 (+ rX_r1 Lgrid)) ;region 2
+(define rX_r3 (+ rX_r2 Lgrid)) ;region 3
+(sdegeo:create-rectangle (position lX_section bY_stack 0) (position rX_r1 tY_stack 0) "SiO2" "R.gate1.gr1.top")
+(sdegeo:create-rectangle (position rX_r1 bY_stack 0) (position rX_r2 tY_stack 0) "SiO2" "R.gate1.gr2.top")
+(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.gate1.gr3.top")
+(sdegeo:create-rectangle (position lX_section (+ Yoffset_stack bY_stack) 0) (position rX_r1 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate1.gr1.bot")
+(sdegeo:create-rectangle (position rX_r1 (+ Yoffset_stack bY_stack) 0) (position rX_r2 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate1.gr2.bot")
+(sdegeo:create-rectangle (position rX_r2 (+ Yoffset_stack bY_stack) 0) (position rX_r3 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate1.gr3.bot")
+
+;;create regions under isolation 2
+(define lX_section lX_i2)
+(define Lgrid (/ Liso2 3))
+(define rX_r1 (+ lX_section Lgrid)) ;region 1
+(define rX_r2 (+ rX_r1 Lgrid)) ;region 2
+(define rX_r3 (+ rX_r2 Lgrid)) ;region 3
+(sdegeo:create-rectangle (position lX_section bY_stack 0) (position rX_r1 tY_stack 0) "SiO2" "R.iso2.gr1.top")
+(sdegeo:create-rectangle (position rX_r1 bY_stack 0) (position rX_r2 tY_stack 0) "SiO2" "R.iso2.gr2.top")
+(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.iso2.gr3.top")
+(sdegeo:create-rectangle (position lX_section (+ Yoffset_stack bY_stack) 0) (position rX_r1 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso2.gr1.bot")
+(sdegeo:create-rectangle (position rX_r1 (+ Yoffset_stack bY_stack) 0) (position rX_r2 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso2.gr2.bot")
+(sdegeo:create-rectangle (position rX_r2 (+ Yoffset_stack bY_stack) 0) (position rX_r3 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso2.gr3.bot")
+
+;;create regions under gate 2
+(define lX_section lX_g2)
+(define Lgrid (/ Lgate2 3))
+(define rX_r1 (+ lX_section Lgrid)) ;region 1
+(define rX_r2 (+ rX_r1 Lgrid)) ;region 2
+(define rX_r3 (+ rX_r2 Lgrid)) ;region 3
+(sdegeo:create-rectangle (position lX_section bY_stack 0) (position rX_r1 tY_stack 0) "SiO2" "R.gate2.gr1.top")
+(sdegeo:create-rectangle (position rX_r1 bY_stack 0) (position rX_r2 tY_stack 0) "SiO2" "R.gate2.gr2.top")
+(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.gate2.gr3.top")
+(sdegeo:create-rectangle (position lX_section (+ Yoffset_stack bY_stack) 0) (position rX_r1 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate2.gr1.bot")
+(sdegeo:create-rectangle (position rX_r1 (+ Yoffset_stack bY_stack) 0) (position rX_r2 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate2.gr2.bot")
+(sdegeo:create-rectangle (position rX_r2 (+ Yoffset_stack bY_stack) 0) (position rX_r3 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate2.gr3.bot")
+
+;;create regions under isolation 3
+(define lX_section lX_i3)
+(define Lgrid (/ Liso3 3))
+(define rX_r1 (+ lX_section Lgrid)) ;region 1
+(define rX_r2 (+ rX_r1 Lgrid)) ;region 2
+(define rX_r3 (+ rX_r2 Lgrid)) ;region 3
+(sdegeo:create-rectangle (position lX_section bY_stack 0) (position rX_r1 tY_stack 0) "SiO2" "R.iso3.gr1.top")
+(sdegeo:create-rectangle (position rX_r1 bY_stack 0) (position rX_r2 tY_stack 0) "SiO2" "R.iso3.gr2.top")
+(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.iso3.gr3.top")
+(sdegeo:create-rectangle (position lX_section (+ Yoffset_stack bY_stack) 0) (position rX_r1 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso3.gr1.bot")
+(sdegeo:create-rectangle (position rX_r1 (+ Yoffset_stack bY_stack) 0) (position rX_r2 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso3.gr2.bot")
+(sdegeo:create-rectangle (position rX_r2 (+ Yoffset_stack bY_stack) 0) (position rX_r3 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso3.gr3.bot")
+
+;;create regions under gate 3
+(define lX_section lX_g3)
+(define Lgrid (/ Lgate3 3))
+(define rX_r1 (+ lX_section Lgrid)) ;region 1
+(define rX_r2 (+ rX_r1 Lgrid)) ;region 2
+(define rX_r3 (+ rX_r2 Lgrid)) ;region 3
+(sdegeo:create-rectangle (position lX_section bY_stack 0) (position rX_r1 tY_stack 0) "SiO2" "R.gate3.gr1.top")
+(sdegeo:create-rectangle (position rX_r1 bY_stack 0) (position rX_r2 tY_stack 0) "SiO2" "R.gate3.gr2.top")
+(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.gate3.gr3.top")
+(sdegeo:create-rectangle (position lX_section (+ Yoffset_stack bY_stack) 0) (position rX_r1 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate3.gr1.bot")
+(sdegeo:create-rectangle (position rX_r1 (+ Yoffset_stack bY_stack) 0) (position rX_r2 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate3.gr2.bot")
+(sdegeo:create-rectangle (position rX_r2 (+ Yoffset_stack bY_stack) 0) (position rX_r3 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.gate3.gr3.bot")
+
+;;create regions under isolation 4
+(define lX_section lX_i4)
+(define Lgrid (/ Liso4 3))
+(define rX_r1 (+ lX_section Lgrid)) ;region 1
+(define rX_r2 (+ rX_r1 Lgrid)) ;region 2
+(define rX_r3 (+ rX_r2 Lgrid)) ;region 3
+(sdegeo:create-rectangle (position lX_section bY_stack 0) (position rX_r1 tY_stack 0) "SiO2" "R.iso4.gr1.top")
+(sdegeo:create-rectangle (position rX_r1 bY_stack 0) (position rX_r2 tY_stack 0) "SiO2" "R.iso4.gr2.top")
+(sdegeo:create-rectangle (position rX_r2 bY_stack 0) (position rX_r3 tY_stack 0) "SiO2" "R.iso4.gr3.top")
+(sdegeo:create-rectangle (position lX_section (+ Yoffset_stack bY_stack) 0) (position rX_r1 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso4.gr1.bot")
+(sdegeo:create-rectangle (position rX_r1 (+ Yoffset_stack bY_stack) 0) (position rX_r2 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso4.gr2.bot")
+(sdegeo:create-rectangle (position rX_r2 (+ Yoffset_stack bY_stack) 0) (position rX_r3 (+ Yoffset_stack tY_stack) 0) "SiO2" "R.iso4.gr3.bot")
+
+<split> no.3
+
+;create stack beside source and drain
+;;top
+(sdegeo:create-rectangle (position lX_source_stack bY_source_stack 0) (position rX_source_stack tY_source_stack 0) "SiO2" "R.stack.source.top")
+(sdegeo:create-rectangle (position lX_drain_stack bY_drain_stack 0) (position rX_drain_stack tY_drain_stack 0) "SiO2" "R.stack.drain.top")
+;;bottom
+(sdegeo:create-rectangle (position lX_source_stack (+ Yoffset_stack bY_source_stack) 0) (position rX_source_stack (+ Yoffset_stack tY_source_stack) 0) "SiO2" "R.stack.source.bot")
+(sdegeo:create-rectangle (position lX_drain_stack (+ Yoffset_stack bY_drain_stack) 0) (position rX_drain_stack (+ Yoffset_stack tY_drain_stack) 0) "SiO2" "R.stack.drain.bot")
+
+;create isolation and gate layer
+;;top
+(define Yoffset_gate (* -1 (+ Tgate Tstack Tch Tstack)))
+(sdegeo:create-rectangle (position lX_i1 bY_gate 0) (position rX_i1 tY_gate 0) "%tc.iso.material%" "R.iso1.top")
+(sdegeo:create-rectangle (position lX_g1 bY_gate 0) (position rX_g1 tY_gate 0) "PolySi" "R.gate1.top")
+(sdegeo:create-rectangle (position lX_i2 bY_gate 0) (position rX_i2 tY_gate 0) "%tc.iso.material%" "R.iso2.top")
+(sdegeo:create-rectangle (position lX_g2 bY_gate 0) (position rX_g2 tY_gate 0) "PolySi" "R.gate2.top")
+(sdegeo:create-rectangle (position lX_i3 bY_gate 0) (position rX_i3 tY_gate 0) "%tc.iso.material%" "R.iso3.top")
+(sdegeo:create-rectangle (position lX_g3 bY_gate 0) (position rX_g3 tY_gate 0) "PolySi" "R.gate3.top")
+(sdegeo:create-rectangle (position lX_i4 bY_gate 0) (position rX_i4 tY_gate 0) "%tc.iso.material%" "R.iso4.top")
+;;bottom
+(sdegeo:create-rectangle (position lX_i1 (+ Yoffset_gate bY_gate) 0) (position rX_i1 (+ Yoffset_gate tY_gate) 0) "%tc.iso.material%" "R.iso1.bot")
+(sdegeo:create-rectangle (position lX_g1 (+ Yoffset_gate bY_gate) 0) (position rX_g1 (+ Yoffset_gate tY_gate) 0) "PolySi" "R.gate1.bot")
+(sdegeo:create-rectangle (position lX_i2 (+ Yoffset_gate bY_gate) 0) (position rX_i2 (+ Yoffset_gate tY_gate) 0) "%tc.iso.material%" "R.iso2.bot")
+(sdegeo:create-rectangle (position lX_g2 (+ Yoffset_gate bY_gate) 0) (position rX_g2 (+ Yoffset_gate tY_gate) 0) "PolySi" "R.gate2.bot")
+(sdegeo:create-rectangle (position lX_i3 (+ Yoffset_gate bY_gate) 0) (position rX_i3 (+ Yoffset_gate tY_gate) 0) "%tc.iso.material%" "R.iso3.bot")
+(sdegeo:create-rectangle (position lX_g3 (+ Yoffset_gate bY_gate) 0) (position rX_g3 (+ Yoffset_gate tY_gate) 0) "PolySi" "R.gate3.bot")
+(sdegeo:create-rectangle (position lX_i4 (+ Yoffset_gate bY_gate) 0) (position rX_i4 (+ Yoffset_gate tY_gate) 0) "%tc.iso.material%" "R.iso4.bot")
+
+<split> no.4
+
+;contacts
+(sdegeo:define-contact-set "gate1" (color:rgb 1.0 0.0 0.0) "##")
+(sdegeo:define-contact-set "gate2" (color:rgb 0.0 1.0 0.0) "##")
+(sdegeo:define-contact-set "gate3" (color:rgb 0.0 0.0 1.0) "##")
+(sdegeo:define-contact-set "source" (color:rgb 1.0 1.0 0.0) "##")
+(sdegeo:define-contact-set "drain" (color:rgb 0.0 1.0 1.0) "##")
+(sdegeo:define-contact-set "substrate" (color:rgb 1.0 0.0 1.0) "##")
+
+(sdegeo:define-2d-contact (find-edge-id (position lX_source (/ (+ tY_source bY_source) 2) 0 )) "source")
+(sdegeo:define-2d-contact (find-edge-id (position rX_drain (/ (+ tY_drain bY_drain) 2) 0 )) "drain")
+
+(define Yvertex_top  (/ (+ bY_gate tY_gate) 2))
+(define Yvertex_bot (- (* -1 (/ (+ bY_gate tY_gate) 2)) Tch))
+;gate1
+(sdegeo:set-current-contact-set "gate1")
+;;top
+(sdegeo:set-contact-boundary-edges (find-body-id (position (/ (+ lX_g1 rX_g1) 2) Yvertex_top 0)))
+(sdegeo:delete-region (find-body-id (position (/ (+ lX_g1 rX_g1) 2) Yvertex_top 0)))
+;;bottom
+(sdegeo:set-contact-boundary-edges (find-body-id (position (/ (+ lX_g1 rX_g1) 2) Yvertex_bot 0)))
+(sdegeo:delete-region (find-body-id (position (/ (+ lX_g1 rX_g1) 2) Yvertex_bot 0)))
+
+;gate2
+(sdegeo:set-current-contact-set "gate2")
+;;top
+(sdegeo:set-contact-boundary-edges (find-body-id (position (/ (+ lX_g2 rX_g2) 2) Yvertex_top 0)))
+(sdegeo:delete-region (find-body-id (position (/ (+ lX_g2 rX_g2) 2) Yvertex_top 0)))
+;;bottom
+(sdegeo:set-contact-boundary-edges (find-body-id (position (/ (+ lX_g2 rX_g2) 2) Yvertex_bot 0)))
+(sdegeo:delete-region (find-body-id (position (/ (+ lX_g2 rX_g2) 2) Yvertex_bot 0)))
+
+;gate3
+(sdegeo:set-current-contact-set "gate3")
+;;top
+(sdegeo:set-contact-boundary-edges (find-body-id (position (/ (+ lX_g3 rX_g3) 2) Yvertex_top 0)))
+(sdegeo:delete-region (find-body-id (position (/ (+ lX_g3 rX_g3) 2) Yvertex_top 0)))
+;;bottom
+(sdegeo:set-contact-boundary-edges (find-body-id (position (/ (+ lX_g3 rX_g3) 2) Yvertex_bot 0)))
+(sdegeo:delete-region (find-body-id (position (/ (+ lX_g3 rX_g3) 2) Yvertex_bot 0)))
+
+
+;;doping
+(sdedr:define-constant-profile "Const.channel" "PhosphorusActiveConcentration" Nch)
+(sdedr:define-constant-profile-region "PlaceCD.channel" "Const.channel" "R.ch")
+(sdedr:define-constant-profile "Const.sd" "PhosphorusActiveConcentration" Nsd)
+(sdedr:define-constant-profile-region "PlaceCD.source" "Const.sd" "R.source")
+(sdedr:define-constant-profile-region "PlaceCD.drain" "Const.sd" "R.drain")
+
+;mesh strategy
+;;stack
+(sdedr:define-refinement-size "Ref.stack" 5e-3  3e-3  3e-3  2e-3)
+(sdedr:define-refinement-material "PlaceRef.stack" "Ref.stack" "SiO2")
+;
+;;isolation region
+(sdedr:define-refinement-size "Ref.iso" 20e-3  20e-3  15e-3  15e-3)
+(sdedr:define-refinement-material "PlaceRef.iso" "Ref.iso" "Nitride")
+
+;;channel
+(sdedr:define-refeval-window "RefWin.channel.top" "Rectangle" (position lX_ch tY_ch 0) (position rX_ch (/ (+ tY_ch bY_ch) 2) 0))
+(sdedr:define-multibox-size "MB.channel.top" 2e-3 2e-3 1e-3 0.1e-3 1 -1.2)
+(sdedr:define-multibox-placement "PlaceMB.channel.top" "MB.channel.top" "RefWin.channel.top")
+(sdedr:define-refeval-window "RefWin.channel.bot" "Rectangle" (position lX_ch (/ (+ tY_ch bY_ch) 2) 0) (position rX_ch bY_ch 0 ))
+(sdedr:define-multibox-size "MB.channel.bot" 2e-3 2e-3 1e-3 0.1e-3 1 1.2)
+(sdedr:define-multibox-placement "PlaceMB.channel.bot" "MB.channel.bot" "RefWin.channel.bot")
+
+;;source and drain
+(sdedr:define-refinement-size "Ref.sd" 5e-3 5e-3 3e-3 3e-3)
+(sdedr:define-refinement-region "PlaceRF.source" "Ref.sd" "R.source")
+(sdedr:define-refinement-region "PlaceRF.drain" "Ref.sd" "R.drain")
+
+;;main cell
+;(sdedr:define-refinement-size "Ref.gate2" 0.2e-3 10e-3 0.1e-3 8e-3)
+;(sdedr:define-refeval-window "RefWin.channel.gate2" "Rectangle" (position lX_g2 tY_ch 0) (position rX_g2 bY_ch 0))
+;(sdedr:define-refinement-placement "PlaceRF.channel.gate2" "Ref.gate2" "RefWin.channel.gate2")
+
+;;cell boundary
+;(sdedr:define-refinement-size "Ref.boundary" 1e-3 10e-3 0.5e-3 8e-3)
+;(sdedr:define-refeval-window "RefWin.channel.gate2.left" "Rectangle" (position lX_i2 tY_ch 0) (position rX_i2 bY_ch 0))
+;(sdedr:define-refeval-window "RefWin.channel.gate2.right" "Rectangle" (position lX_i3 tY_ch 0) (position rX_i3 bY_ch 0))
+;(sdedr:define-refinement-placement "PlaceRF.channel.gate2.left" "Ref.boundary" "RefWin.channel.gate2.left")
+;(sdedr:define-refinement-placement "PlaceRF.channel.gate2.right" "Ref.boundary" "RefWin.channel.gate2.right")
+
+(sde:build-mesh "snmesh" "" "triple_full")
