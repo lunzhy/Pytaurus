@@ -200,7 +200,7 @@ class SdeCmdFileTripleFull(SdeCmdFile):
                 charge_conc = self.calculateChargeConc(voltage_shift)
                 for side in ['top', 'bot']:
                     region_grid_name = 'R.%s.gr%s.%s' % (region, grid_index, side)
-                    line_phys = 'Physics (RegionInterface = "R.subs/%s")\n' % region_grid_name
+                    line_phys = 'Physics (RegionInterface = "R.ch/%s")\n' % region_grid_name
                     self.lines_charge += line_phys
                     line_left_brace = '{\n'
                     self.lines_charge += line_left_brace
