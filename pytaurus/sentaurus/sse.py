@@ -14,12 +14,12 @@ class SseCmdFile:
         self.structure = trip_cell.structure
         if self.structure is 'Triple':
             self.template_cmdfile = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                            os.pardir, os.pardir, 'resources', sen.Resource_Sse_File_Triple))
-            self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File_Triple)
+                                            os.pardir, os.pardir, 'resources', sen.Resource_Sse_File))
+            self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File)
         elif self.structure is 'TripleFull':
             self.template_cmdfile = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                            os.pardir, os.pardir, 'resources', sen.Resource_Sse_File_TripleFull))
-            self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File_TripleFull)
+                                            os.pardir, os.pardir, 'resources', sen.Resource_Sse_File))
+            self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File)
         # self.template_cmdfile = file_path
         self.cmd_lines = []
         return

@@ -1,35 +1,39 @@
 __author__ = 'Lunzhy'
 
+Cell_Structure = 'triplefull'  # triple | triplefull
+
 #paramter file name
 User_Param_File = r'user.param'
 
 #the template filename in resource
-Resource_Sse_File_Triple = r'triple_sse.cmd'
-Resource_Sse_File_TripleFull = r'triplefull_sse.cmd'
-Resource_Sde_File = r'triple_sde.cmd'
-Resource_Ins_File = r'inspect.cmd'
-Resource_Sde_File_Vth = r'triple_sde_vth.cmd'
+Resource_Sse_File = r'%s_sse.template' % Cell_Structure
+Resource_Sde_File = r'%s_sde.template' % Cell_Structure
+Resource_Sde_File_Vth = r'triple_sde_vth.template' if Cell_Structure == 'triple' \
+                        else r'%s_sde.template' % Cell_Structure
+Resource_Ins_File = r'inspect.template'
+
 
 #the folder to run sentaurus under project folder
 Folder_Run_Sentaurus = r'sentrun'
 Folder_Exchange_Data = r'exchange'
 
 #the generated command name for sse dan sdevice
-Sse_Cmd_File_Triple = r'sse_triple.cmd'
-Sse_Cmd_File_TripleFull = r'sse_triplefull.cmd'
-Sde_Cmd_File = r'sde_triple.cmd'
+Sse_Cmd_File = r'sse_%s.cmd' % Cell_Structure
+Sde_Cmd_File = r'sde_%s.cmd' % Cell_Structure
 Inspect_Cmd_File = r'ins.cmd'
 
 #names of file for data exchange
 #from SimCTM
 Points_Location_Subs = r'subs_points.in'
-Charge_File = r'charge.in'
+File_Interface_Vfb = r'charge.in'
 #from Pytaurus
 Exchange_Data_Subs = r'substrate.in'
-Tdr_File = r'triple_msh.tdr'
 Plot_Subs_File = r'potential_fermi.out'
-Plot_File_Sentaurus = r'final_triple_sde_des.plt'
-Plot_File_Init_Sentaurus = r'triple_sde_des.plt'
+
+Tdr_File = r'%s_msh.tdr' % Cell_Structure
+Plot_File = r'final_%s_des.plt' % Cell_Structure
+Plot_File_Init = r'%s_des.plt' % Cell_Structure
+
 
 #the folder and file name for solving vth
 Folder_Substrate = r'Substrate'

@@ -8,16 +8,16 @@ import pytaurus.sentaurus as sen
 
 
 def movePlotFile(prj_path):
-    origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Sentaurus)
+    origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File)
     if not os.path.exists(origin_path):
-        origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Init_Sentaurus)
+        origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Init)
     dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_Subs_File)
     shutil.copy(origin_path, dst_path)
     return
 
 
 def copyChargeFile(prj_path, charge_file):
-    dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Charge_File)
+    dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.File_Interface_Vfb)
     shutil.copy(charge_file, dst_path)
     return
 
@@ -127,7 +127,7 @@ class SdeCmdFile():
         return
 
     def readInterfaceCharge(self):
-        interface_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Charge_File)
+        interface_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.File_Interface_Vfb)
         file = open(interface_filepath)
         infoline = file.readline() #read the information line
         regions_name = ['gate1', 'iso2', 'gate2', 'iso3', 'gate3']
@@ -161,6 +161,120 @@ class SdeCmdFile():
         charge_conc = voltage_shift * (sen.eps0 * epsilon_sio2) / stack_thick_in_cm / sen.q_charge
         return charge_conc
 
+
+class SdeCmdFileTripleFull(SdeCmdFile):
+    def __init__(self, triple_cell, solve_vth_cell=None):
+        self.vth_cell = solve_vth_cell
+        self.params = {}
+        self.channel_points = {}
+        self.structure = triple_cell
+        self.prj_path = triple_cell.prj_path
+        file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                                 os.pardir, os.pardir, 'resources', sen.Resource_Sde_File))
+        self.template_filepath = file_path
+        self.cmd_lines = []
+        self.lines_charge = ''
+        self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sde_Cmd_File)
+        return
+
+    def readInterfaceCharge(self):
+        interface_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.File_Interface_Vfb)
+        file = open(interface_filepath)
+        infoline = file.readline()  #read the information line
+        regions_name = ['iso1', 'gate1', 'iso2', 'gate2', 'iso3', 'gate3', 'iso4']
+        regions_grid = [int(self.structure.getParam('tc.iso1.width.grid')),
+                        int(self.structure.getParam('tc.gate1.width.grid')),
+                        int(self.structure.getParam('tc.iso2.width.grid')),
+                        int(self.structure.getParam('tc.gate2.width.grid')),
+                        int(self.structure.getParam('tc.iso3.width.grid')),
+                        int(self.structure.getParam('tc.gate3.width.grid')),
+                        int(self.structure.getParam('tc.iso4.width.grid'))]
+        line_slice_count = 0
+        for region, grid_num in zip(regions_name, regions_grid):
+            for grid_index in range(1, grid_num + 1):
+                file_line = file.readline()
+                if file_line is '':
+                    continue
+                line_slice_count += 1
+                voltage_shift = float(re.split('\s+', file_line)[2])  # the third is voltage shift
+                charge_conc = self.calculateChargeConc(voltage_shift)
+                for side in ['top', 'bot']:
+                    region_grid_name = 'R.%s.gr%s.%s' % (region, grid_index, side)
+                    line_phys = 'Physics (RegionInterface = "R.subs/%s")\n' % region_grid_name
+                    self.lines_charge += line_phys
+                    line_left_brace = '{\n'
+                    self.lines_charge += line_left_brace
+                    # note that it is negative charge
+                    line_trap = '\tTraps (FixedCharge Conc=-%.3e)\n' % charge_conc
+                    self.lines_charge += line_trap
+                    line_rigth_brace = '}\n\n'
+                    self.lines_charge += line_rigth_brace
+
+        if (not line_slice_count == sum(regions_grid)) or (not file.readline() == ''):
+            print('[Error] number of vfb shift does not equal to total grid nunmber.')
+        return
+
+    def setParameters(self):
+        # tdr file
+        self.params['grid.tdr'] = sen.Tdr_File
+
+        # parameters from structure
+        params_from_structure = ['tc.gate1.workfunction', 'tc.gate2.workfunction', 'tc.gate3.workfunction']
+        for param in params_from_structure:
+            self.params[param] = self.structure.getParam(param)
+
+        # set the points
+        points = ''
+        for key, coord_tup in self.channel_points.items():
+            points += ('\t\t%s\n' % (coord_tup,))
+        self.params['points'] = points
+
+        # interface charge concentration
+        self.params['charge'] = self.lines_charge
+
+        # deal with gate voltage, in consideration of the solve_vth condition
+        if self.vth_cell is None:  # solve potential situation
+            self.params['gate.first.ramp'] = 'gate1'
+            self.params['gate.second.ramp'] = 'gate3'
+            self.params['gate.third.ramp'] = 'gate2'
+            self.params['tc.gate.voltage.first'] = self.structure.getParam('tc.gate1.voltage')
+            self.params['tc.gate.voltage.second'] = self.structure.getParam('tc.gate3.voltage')
+            self.params['tc.gate.voltage.third'] = self.structure.getParam('tc.gate2.voltage')
+            self.params['tc.drain.voltage'] = self.structure.getParam('tc.drain.voltage')
+        else:  # solve_vth situation
+            if self.vth_cell == 'Cell1':
+                self.params['gate.first.ramp'] = 'gate2'
+                self.params['gate.second.ramp'] = 'gate3'
+                self.params['gate.third.ramp'] = 'gate1'
+            elif self.vth_cell == 'Cell2':
+                self.params['gate.first.ramp'] = 'gate1'
+                self.params['gate.second.ramp'] = 'gate3'
+                self.params['gate.third.ramp'] = 'gate2'
+            elif  self.vth_cell == 'Cell3':
+                self.params['gate.first.ramp'] = 'gate1'
+                self.params['gate.second.ramp'] = 'gate2'
+                self.params['gate.third.ramp'] = 'gate3'
+            self.params['tc.gate.voltage.first'] = self.structure.getParam('tc.gate.voltage.pass')
+            self.params['tc.gate.voltage.second'] = self.structure.getParam('tc.gate.voltage.pass')
+            self.params['tc.gate.voltage.third'] = self.structure.getParam('tc.gate.voltage.read')
+            self.params['tc.drain.voltage'] = self.structure.getParam('tc.drain.voltage.read')
+        # CurrentPlot
+        if self.vth_cell is None:
+            self.params['plot.last'] = 'CurrentPlot ( Time=(1) )'
+        else:
+            self.params['plot.last'] = ''
+
+        # AreaFactor
+        if self.vth_cell is None:
+            self.params['area.factor'] = ''
+        else:
+            if self.vth_cell == 'Cell1':
+                self.params['area.factor'] = 'AreaFactor=%se-3' % self.structure.getParam('tc.gate1.width')
+            elif self.vth_cell == 'Cell2':
+                self.params['area.factor'] = 'AreaFactor=%se-3' % self.structure.getParam('tc.gate2.width')
+            elif self.vth_cell == 'Cell3':
+                self.params['area.factor'] = 'AreaFactor=%se-3' % self.structure.getParam('tc.gate3.width')
+        return
 
 def test():
     return

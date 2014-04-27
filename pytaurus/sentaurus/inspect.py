@@ -25,7 +25,7 @@ class InspectCmdFile():
         return current
 
     def setParameters(self):
-        self.params['plt'] = sen.Plot_File_Sentaurus
+        self.params['plt'] = sen.Plot_File
         self.params['vth.current'] = '%.3e' % self.calcVthCurrent()
         return
 

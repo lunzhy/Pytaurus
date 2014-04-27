@@ -1,14 +1,13 @@
 File
 {
     Grid    = "%grid.tdr%"
-    Plot    = "triple"
-    Current = "triple"
-    Output  = "triple"
+    Plot    = "triplefull"
+    Current = "triplefull"
+    Output  = "triplefull"
 }
 
 Electrode
 {
-    { Name="substrate"      Voltage=0.0}
     { Name="source"         Voltage=0.0}
     { Name="drain"          Voltage=0.0}
     { Name="gate1"          Voltage=0       WorkFunction=%tc.gate1.workfunction%}
@@ -21,14 +20,10 @@ Physics
     Mobility( DopingDep HighFieldSat Enormal )
     EffectiveIntrinsicDensity( OldSlotboom )
     Recombination( SRH(DopingDep) )
+    %area.factor%
 }
 
 %charge%
-
-*Physics (RegionInterface = "")
-*{
-*   Traps (FixedCharge Conc=)
-*}
 
 Math
 {
@@ -36,6 +31,23 @@ Math
     Method=PARDISO
     Iterations=12
     Digits=5
+    *CNormPrint
+}
+
+CurrentPlot
+{
+    Potential
+    (
+        %points%
+    )
+    eQuasiFermiEnergy
+    (
+        %points%
+    )
+    ConductionBandEnergy
+    (
+        %points%
+    )
 }
 
 Solve
@@ -47,7 +59,8 @@ Solve
     (
         InitialStep=1e-3        Increment=1.6
         MinStep=1e-5            MaxStep=0.2
-        Goal{ Name="gate1"      Voltage=%tc.gate.voltage.pass%}
+        Goal{ Name="%gate.first.ramp%"
+        Voltage=%tc.gate.voltage.first%}
     ){ Coupled { Poisson }
        CurrentPlot ( Time=(-1)) }
 
@@ -55,7 +68,8 @@ Solve
     (
         InitialStep=1e-3        Increment=1.6
         MinStep=1e-5            MaxStep=0.2
-        Goal{ Name="gate3"      Voltage=%tc.gate.voltage.pass%}
+        Goal{ Name="%gate.second.ramp%"
+        Voltage=%tc.gate.voltage.second%}
     ){ Coupled { Poisson }
        CurrentPlot ( Time=(-1) ) }
 
@@ -63,21 +77,21 @@ Solve
     (
         InitialStep=1e-3        Increment=1.6       Decrement=4
         MinStep=1e-5            MaxStep = 0.2
-        Goal{ Name="drain"      Voltage=%tc.drain.voltage.read%}
-    ){ Coupled { Poisson Electron Hole }
-       CurrentPlot ( Time=(-1) ) }
+        Goal{ Name="drain"
+        Voltage=%tc.drain.voltage%}
+    ){ Coupled { Poisson Electron }
+       CurrentPlot ( Time=(-1)) }
 
     NewCurrentPrefix="final_"
     Quasistationary
     (
         InitialStep=1e-3        Increment=1.6       Decrement=4
         MinStep=1e-5            MaxStep = 0.2
-        Goal{ Name="gate2"      Voltage=%tc.gate.voltage.read%}
-    ){ Coupled { Poisson Electron Hole } }
-
-
-
-
+        Goal{ Name="%gate.third.ramp%"
+        Voltage=%tc.gate.voltage.third%}
+    ){ Coupled (Iterations=15){ Poisson Electron }
+       %plot.last%
+      }
 }
 
 Plot
@@ -87,8 +101,8 @@ Plot
 
     *-Currents and current components:
     Current/Vector eCurrent/Vector hCurrent/Vector
-    * eMobility hMobility
-    * eVelocity hVelocity
+    eMobility hMobility
+    eVelocity hVelocity
 
     *-Fields, Potentials and Charge distributions
     ElectricField/Vector
@@ -102,13 +116,13 @@ Plot
     eENormal hENormal
 
     *-Temperatures
-    * LatticeTemperature
-    * eTemperature hTemperature
+    *LatticeTemperature
+    *eTemperature hTemperature
 
     *-Generation/Recombination
-    * SRHRecombination
-    * AvalancheGeneration eAvalancheGeneration hAvalancheGeneration
-    * TotalRecombination
+    *SRHRecombination
+    *AvalancheGeneration eAvalancheGeneration hAvalancheGeneration
+    *TotalRecombination
 
     *-Doping Profiles
     Doping
@@ -133,3 +147,27 @@ Plot
     * eDirectTunnel hDirectTunnel
 
 }
+
+* CurrentPlot
+* {
+*     Potential
+*     (
+*         Average(RegionInterface="R.subs/R.gate2.gr1")
+*         Average(RegionInterface="R.subs/R.gate2.gr2")
+*         Average(RegionInterface="R.subs/R.gate2.gr3")
+*     )
+*     eQuasiFermiEnergy
+*     (
+*         Average(RegionInterface="R.subs/R.gate2.gr1")
+*         Average(RegionInterface="R.subs/R.gate2.gr2")
+*         Average(RegionInterface="R.subs/R.gate2.gr3")
+*         (1200e-4, -1e-6)
+*     )
+*     ConductionBandEnergy
+*     (
+*         Average(RegionInterface="R.subs/R.gate2.gr1")
+*         Average(RegionInterface="R.subs/R.gate2.gr2")
+*         Average(RegionInterface="R.subs/R.gate2.gr3")
+*         #(0.12, -1e-6)
+*     )
+* }

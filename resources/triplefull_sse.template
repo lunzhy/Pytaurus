@@ -306,4 +306,4 @@
 ;(sdedr:define-refinement-placement "PlaceRF.channel.gate2.left" "Ref.boundary" "RefWin.channel.gate2.left")
 ;(sdedr:define-refinement-placement "PlaceRF.channel.gate2.right" "Ref.boundary" "RefWin.channel.gate2.right")
 
-(sde:build-mesh "snmesh" "" "triple_full")
+(sde:build-mesh "snmesh" "" "triplefull")

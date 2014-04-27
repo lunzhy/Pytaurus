@@ -1,9 +1,9 @@
 File
 {
     Grid    = "%grid.tdr%"
-    Plot    = "triple_sde"
-    Current = "triple_sde"
-    Output  = "triple_sde"
+    Plot    = "triple"
+    Current = "triple"
+    Output  = "triple"
 }
 
 Electrode

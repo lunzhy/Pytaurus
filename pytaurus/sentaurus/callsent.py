@@ -17,7 +17,7 @@ def callSse(sse_cmd):
     log_filepath = os.path.join(prj_path, sen.Logfile_Sse)
     logfile = open(log_filepath, 'w+')
     chdirToSentrun(prj_path)
-    command = 'sde -e -l %s' % sen.Sse_Cmd_File_Triple
+    command = 'sde -e -l %s' % sen.Sse_Cmd_File
     subprocess.call(command.split(' '))
     #output = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE).communicate()[0]
     #print(output.decode('utf-8'))

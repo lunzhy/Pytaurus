@@ -31,7 +31,7 @@ def cleanDebugEnv():
     #clean data exchage
     exchange_path = os.path.join(env.Debug_Directory, sen.Folder_Exchange_Data)
     for file in os.listdir(exchange_path):
-        if not file == sen.Charge_File and not file == sen.Points_Location_Subs:
+        if not file == sen.File_Interface_Vfb and not file == sen.Points_Location_Subs:
             file_path = os.path.join(exchange_path, file)
             os.remove(file_path)
     return
@@ -62,6 +62,8 @@ def testTripleFull():
     trip_cells.build()
     sse_cmd = sse.SseCmdFile(trip_cells)
     sse_cmd.build()
+    sde_cmd = sde.SdeCmdFileTripleFull(trip_cells)
+    sde_cmd.build()
     return
 
 
