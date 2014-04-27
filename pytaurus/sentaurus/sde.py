@@ -164,6 +164,9 @@ class SdeCmdFile():
 
 class SdeCmdFileTripleFull(SdeCmdFile):
     def __init__(self, triple_cell, solve_vth_cell=None):
+        """
+        @solve_vth_cell: None for not solving vth, cell1 | cell2 | cell3 for specified cell
+        """
         self.vth_cell = solve_vth_cell
         self.params = {}
         self.channel_points = {}
@@ -179,6 +182,9 @@ class SdeCmdFileTripleFull(SdeCmdFile):
 
     def readInterfaceCharge(self):
         interface_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.File_Interface_Vfb)
+        if not os.path.exists(interface_filepath):
+            print('[Warning] No slice vfb shift for Pytaurus.')
+            return
         file = open(interface_filepath)
         infoline = file.readline()  #read the information line
         regions_name = ['iso1', 'gate1', 'iso2', 'gate2', 'iso3', 'gate3', 'iso4']
@@ -242,15 +248,15 @@ class SdeCmdFileTripleFull(SdeCmdFile):
             self.params['tc.gate.voltage.third'] = self.structure.getParam('tc.gate2.voltage')
             self.params['tc.drain.voltage'] = self.structure.getParam('tc.drain.voltage')
         else:  # solve_vth situation
-            if self.vth_cell == 'Cell1':
+            if self.vth_cell == 'cell1':
                 self.params['gate.first.ramp'] = 'gate2'
                 self.params['gate.second.ramp'] = 'gate3'
                 self.params['gate.third.ramp'] = 'gate1'
-            elif self.vth_cell == 'Cell2':
+            elif self.vth_cell == 'cell2':
                 self.params['gate.first.ramp'] = 'gate1'
                 self.params['gate.second.ramp'] = 'gate3'
                 self.params['gate.third.ramp'] = 'gate2'
-            elif  self.vth_cell == 'Cell3':
+            elif  self.vth_cell == 'cell3':
                 self.params['gate.first.ramp'] = 'gate1'
                 self.params['gate.second.ramp'] = 'gate2'
                 self.params['gate.third.ramp'] = 'gate3'
@@ -268,11 +274,11 @@ class SdeCmdFileTripleFull(SdeCmdFile):
         if self.vth_cell is None:
             self.params['area.factor'] = ''
         else:
-            if self.vth_cell == 'Cell1':
+            if self.vth_cell == 'cell1':
                 self.params['area.factor'] = 'AreaFactor=%se-3' % self.structure.getParam('tc.gate1.width')
-            elif self.vth_cell == 'Cell2':
+            elif self.vth_cell == 'cell2':
                 self.params['area.factor'] = 'AreaFactor=%se-3' % self.structure.getParam('tc.gate2.width')
-            elif self.vth_cell == 'Cell3':
+            elif self.vth_cell == 'cell3':
                 self.params['area.factor'] = 'AreaFactor=%se-3' % self.structure.getParam('tc.gate3.width')
         return
 

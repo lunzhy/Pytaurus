@@ -8,9 +8,9 @@ import pytaurus.sentaurus as sen
 
 
 class TripleCells:
-    def __init__(self, prj_path, structure='Triple'):
+    def __init__(self, prj_path, structure='triple'):
         """
-        @structure: Triple | TripleFull, the structure name
+        @structure: triple | triplefull, the structure name
         """
         self.structure = structure
         self.prj_path = prj_path
@@ -21,11 +21,11 @@ class TripleCells:
         self.channel_points = []
         return
 
-    def isCommentOrBlank(self, line):
+    def _isCommentOrBlank(self, line):
         line = line.lstrip()
         return len(line) == 0 or line[0] == '#'
 
-    def parseLine(self, line):
+    def _parseLine(self, line):
         effective_line = re.split(':|#', line)
         param = effective_line[0].strip()
         value = effective_line[1].strip()
@@ -42,12 +42,12 @@ class TripleCells:
             self.mat_params[(self.current_material, param)] = value
         return
 
-    def readParamFile(self, file_path):
+    def _readParamFile(self, file_path):
         f = open(file_path)
         for line in f.readlines():
-            if self.isCommentOrBlank(line):
+            if self._isCommentOrBlank(line):
                 continue
-            self.parseLine(line)
+            self._parseLine(line)
         f.close()
         return
 
@@ -59,16 +59,16 @@ class TripleCells:
 
     def build(self):
         default_param_path = platform.Default_Param_Path
-        self.readParamFile(default_param_path)
-        self.readParamFile(self.user_param_path)
+        self._readParamFile(default_param_path)
+        self._readParamFile(self.user_param_path)
         # lengths of iso1 and iso4 are also from file for structure Triple
         # self.setNonOccur()
-        self.setEquiStackThick()
-        self.calcChannelPoints()
-        self.writeChannelPoints()
+        self._setEquiStackThick()
+        self._calcChannelPoints()
+        self._writeChannelPoints()
         return
 
-    def setEquiStackThick(self):
+    def _setEquiStackThick(self):
         tunnel_thick = self.params['tc.tunnel.thick']
         tunnel_material = self.params['tc.tunnel.material']
         tunnel_dielectric = self.mat_params[(tunnel_material, 'dielectricConstant')]
@@ -84,17 +84,17 @@ class TripleCells:
         self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick) # in nm
         return
 
-    def setNonOccur(self):
+    def _setNonOccur(self):
         self.params['tc.iso1.width'] = self.params['tc.iso2.width']
         self.params['tc.iso4.width'] = self.params['tc.iso3.width']
         return
 
-    def calcChannelPoints(self):
+    def _calcChannelPoints(self):
         nm_in_um = 1e-3
         y_coord = 0
         offset = 0
         # under iso1
-        if self.structure is 'TripleFull':
+        if self.structure is 'triplefull':
             grid_num = int(self.params['tc.iso1.width.grid'])
             grid_length = float(self.params['tc.iso1.width']) / grid_num
             for grid in range(grid_num):
@@ -132,13 +132,13 @@ class TripleCells:
         offset += float(self.params['tc.iso3.width'])
         grid_num = int(self.params['tc.gate3.width.grid'])
         grid_length = float(self.params['tc.gate3.width']) / grid_num
-        if self.structure is 'Triple':
+        if self.structure is 'triple':
             grid_num += 1  # the last is different from previous in structure Triple
         for grid in range(grid_num):
             x_coord = offset + grid * grid_length
             self.channel_points.append((x_coord, y_coord))
         # under iso4
-        if self.structure is 'TripleFull':
+        if self.structure is 'triplefull':
             offset += float(self.params['tc.gate3.width'])
             grid_num = int(self.params['tc.iso4.width.grid'])
             grid_length = float(self.params['tc.iso4.width']) / grid_num
@@ -147,7 +147,7 @@ class TripleCells:
                 self.channel_points.append((x_coord, y_coord))
         return
 
-    def writeChannelPoints(self):
+    def _writeChannelPoints(self):
         points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Points_Location_Subs)
         f = open(points_filepath, 'w+')
         f.write('vertex ID\t\tx coordinate [nm]\t\ty coordinate [nm]\n')
@@ -155,4 +155,13 @@ class TripleCells:
             line = str(id) + '\t' + str(tup_points[0]) + '\t' + str(tup_points[1]) + '\n'
             f.write(line)
         f.close()
+        return
+
+    def refreshGateVoltage(self, vg1=None, vg2=None, vg3=None):
+        if not vg1 is None:
+            self.params['tc.gate1.voltage'] = vg1
+        if not vg2 is None:
+            self.params['tc.gate2.voltage'] = vg2
+        if not vg3 is None:
+            self.params['tc.gate3.voltage'] = vg3
         return

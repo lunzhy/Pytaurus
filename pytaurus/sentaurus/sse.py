@@ -12,11 +12,11 @@ class SseCmdFile:
         self.triple_cell = trip_cell
         self.prj_path = trip_cell.prj_path
         self.structure = trip_cell.structure
-        if self.structure is 'Triple':
+        if self.structure is 'triple':
             self.template_cmdfile = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                             os.pardir, os.pardir, 'resources', sen.Resource_Sse_File))
             self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File)
-        elif self.structure is 'TripleFull':
+        elif self.structure is 'triplefull':
             self.template_cmdfile = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                             os.pardir, os.pardir, 'resources', sen.Resource_Sse_File))
             self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File)
@@ -92,9 +92,9 @@ class SseCmdFile:
     def writeCmdFile(self):
         cmd_filepath = self.cmd_filepath
         f = open(cmd_filepath, 'w+')
-        if self.structure == 'Triple':
+        if self.structure == 'triple':
             self.creatCmdLinesTriple()
-        elif self.structure == 'TripleFull':
+        elif self.structure == 'triplefull':
             self.creatCmdLinesTripleFull();
         f.writelines(self.cmd_lines)
         f.close()
