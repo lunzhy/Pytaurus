@@ -74,5 +74,12 @@ def test_inspect():
     ins_cmd = inspect.InspectCmdFile(trip_cells)
 
 
+def test_new_inpect():
+    debug_prj_path = env.Debug_Directory
+    trip_cells = structure.TripleCells(debug_prj_path, 'TripleFull')
+    trip_cells.build()
+    ins_cmd = inspect.InspectCmdFile(trip_cells, 'cell1')
+    ins_cmd.build()
+
 if __name__ == '__main__':
-    testTripleFull()
+    test_new_inpect()

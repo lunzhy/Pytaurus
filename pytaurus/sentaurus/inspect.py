@@ -5,14 +5,17 @@ if not path in sys.path:
     sys.path.append(path)
 import pytaurus.sentaurus as sen
 
+Cell_gate_dict = {'cell1': 'gate1', 'cell2': 'gate2', 'cell3': 'gate3'}
+
 class InspectCmdFile():
-    def __init__(self, trip_cells):
-        self.structure = trip_cells
+    def __init__(self, trip_cells, cell='cell2'):
+        self.cells = trip_cells
+        self.target_gate = Cell_gate_dict[cell]
+        self.structure = trip_cells.structure
         self.prj_path = trip_cells.prj_path
         self.params = {}
         file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                  os.pardir, os.pardir, 'resources', sen.Resource_Ins_File))
-
         self.template_file = file_path
         self.cmd_file = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Inspect_Cmd_File)
         self.cmd_lines = []
@@ -20,13 +23,14 @@ class InspectCmdFile():
 
     def calcVthCurrent(self):
         nm_in_um = 1e-3
-        channel_length = self.structure.getParam('tc.gate2.width')
+        channel_length = self.cells.getParam('tc.gate2.width')
         current = 1.0 / (float(channel_length) * nm_in_um) * 1e-7
         return current
 
     def setParameters(self):
         self.params['plt'] = sen.Plot_File
-        self.params['vth.current'] = '%.3e' % self.calcVthCurrent()
+        self.params['gate'] = self.target_gate
+        self.params['vth.current'] = '%.3e' % self.calcVthCurrent() if self.structure == 'triple' else '1e-7'
         return
 
     def replaceLine(self, line):

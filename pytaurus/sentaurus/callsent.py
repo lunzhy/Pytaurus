@@ -15,7 +15,7 @@ def chdirToSentrun(prj_path):
 def callSse(sse_cmd):
     prj_path = sse_cmd.prj_path
     log_filepath = os.path.join(prj_path, sen.Logfile_Sse)
-    logfile = open(log_filepath, 'w+')
+    # logfile = open(log_filepath, 'w+')
     chdirToSentrun(prj_path)
     command = 'sde -e -l %s' % sen.Sse_Cmd_File
     subprocess.call(command.split(' '))
@@ -29,7 +29,7 @@ def callSse(sse_cmd):
 def callSdevice(sde_cmd):
     prj_path = sde_cmd.prj_path
     log_filepath = os.path.join(prj_path, sen.Logfile_Sdevice)
-    logfile = open(log_filepath, 'w+')
+    # logfile = open(log_filepath, 'w+')
     chdirToSentrun(prj_path)
     command = 'sdevice %s' % sen.Sde_Cmd_File
     subprocess.call(command.split(' '))
