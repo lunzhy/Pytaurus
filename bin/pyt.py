@@ -13,6 +13,7 @@ import pytaurus.sentaurus.inspect as inspect
 import pytaurus.sentaurus.callsent as callsent
 import pytaurus.sentaurus.extract as extr
 import pytaurus.structure as structure
+import pytaurus.timestep as timestep
 
 Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'parsevth']
 # the argument list
@@ -23,6 +24,7 @@ Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'par
 #                                                             voltage can be assigned
 # pyt solvevth [prj_path] [cell('cell2')] [time_list]       | solve vth using sentaurus of the project
 # pyt parsevth [prj_path]                                   | calculate vth through flatband shift of each time step
+# pyt timestep [prj_path]                                   | generate time step input file
 
 
 def isSolveVthTime(time):
@@ -92,7 +94,7 @@ def senSolveVthSingleTime(prj_path, trip_cells, time, vth_cell):
     if sen.Cell_Structure == 'triple':
         sde_cmd = sde.SdeCmdFile(trip_cells, solve_vth=True)
     elif sen.Cell_Structure == 'triplefull':
-        sde_cmd = sde.SdeCmdFileTripleFull(trip_cells, vth_cell, vth_cell)
+        sde_cmd = sde.SdeCmdFileTripleFull(trip_cells, vth_cell)
     sde_cmd.build()
     callsent.callSdevice(sde_cmd)
     # deal with inspect
@@ -120,11 +122,12 @@ def senParseVth(prj_path, trip_cells):
 
 
 def main():
-    keyword = sys.argv[1]
+    curr_arg_list = sys.argv[1:]
+    keyword, curr_arg_list = curr_arg_list[0], curr_arg_list[1:]
     if not keyword in Effective_argument:
         print('[Error] Wrong argument keyword: %s' % keyword)
         return
-    prj_path = sys.argv[2]
+    prj_path, curr_arg_list = curr_arg_list[0], curr_arg_list[1:]
     # if not os.path.isabs(prj_path):
     #     # SimCTM sends only the project name,
     #     prj_path = os.path.join(os.path.abspath(os.curdir), prj_path)
@@ -139,7 +142,7 @@ def main():
     elif keyword == 'structure':
         senStructure(trip_cells)
     elif keyword == 'solve':
-        arg_list = sys.argv[3:]
+        arg_list = curr_arg_list
         vg1, vg2, vg3 = None, None, None
         for vg_arg in arg_list:
             if '-vg1=' in vg_arg:
@@ -150,19 +153,20 @@ def main():
                 vg3 = vg_arg[5:]
         senPotential(prj_path, trip_cells, vg1=vg1, vg2=vg2, vg3=vg3)
     elif keyword == 'solvevth':
-        if len(sys.argv) == 3:
-            senSolveVth(prj_path, [], trip_cells)
+        if len(curr_arg_list) == 0:
+            senSolveVth(prj_path, curr_arg_list, trip_cells)
         else:
-            if 'cell' in sys.argv[3]:
-                target_cell = sys.argv[3]
-                time_list = [float(time) for time in sys.argv[4:]]
+            if 'cell' in curr_arg_list[0]:
+                target_cell, curr_arg_list = curr_arg_list[0], curr_arg_list[1:]
+                time_list = [float(time) for time in curr_arg_list]
                 senSolveVth(prj_path, trip_cells, time_list, target_cell)
             else:
-                time_list = [float(time) for time in sys.argv[3:]]
+                time_list = [float(time) for time in curr_arg_list]
                 senSolveVth(prj_path, trip_cells, time_list)
-
     elif keyword == 'parsevth':
         senParseVth(prj_path, trip_cells)
+    elif keyword == 'timestep':
+        timestep.writeTimestepFile(prj_path)
     else:
         print('Wrong argument keyword.')
         return

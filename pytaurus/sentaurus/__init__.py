@@ -4,6 +4,7 @@ Cell_Structure = 'triplefull'  # triple | triplefull
 
 #paramter file name
 User_Param_File = r'user.param'
+TimeStep_File = 'timestep.in'
 
 #the template filename in resource
 Resource_Sse_File = r'%s_sse.template' % Cell_Structure
@@ -27,7 +28,7 @@ Inspect_Cmd_File = r'ins.cmd'
 Points_Location_Subs = r'subs_points.in'
 File_Interface_Vfb = r'charge.in'
 #from Pytaurus
-Exchange_Data_Subs = r'substrate.in'
+Subs_Data_File = r'substrate.in'
 Plot_Subs_File = r'potential_fermi.out'
 
 Tdr_File = r'%s_msh.tdr' % Cell_Structure
