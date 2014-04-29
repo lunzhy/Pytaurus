@@ -16,7 +16,7 @@
 (define LengthGate2 %tc.gate2.width%)
 (define LengthIsolation3 %tc.iso3.width%)
 (define LengthGate3 %tc.gate3.width%)
-(define LengthIsolation4 %tc.iso4.width% 2)
+(define LengthIsolation4 %tc.iso4.width%)
 (define SourceDrainLength 30)                       ;source and drain length is fixed
 (define ChannelDoping 1e15)                         ;channel doping is fixed
 (define SourceDrainDoping 5e20)                     ;source and drain doping is fixed
