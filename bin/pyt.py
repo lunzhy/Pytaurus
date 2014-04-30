@@ -15,7 +15,7 @@ import pytaurus.sentaurus.extract as extr
 import pytaurus.structure as structure
 import pytaurus.timestep as timestep
 
-Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'parsevth']
+Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'parsevth', 'timestep']
 # the argument list
 # pyt clean [prj_path]                                      | clean the files except the remained in this folder
 # pyt prepare [prj_path]                                    | mkdir all the folders needed by the SimCTM
@@ -77,12 +77,12 @@ def senSolveAllVth(prj_path, trip_cells, vth_cell):
         sde_cmd.build()
         callsent.callSdevice(sde_cmd)
         # deal with inspect
-        ins_cmd = inspect.InspectCmdFile(trip_cells)
+        ins_cmd = inspect.InspectCmdFile(trip_cells, vth_cell)
         ins_cmd.build()
-        output = callsent.callInspect(ins_cmd)
+        output = callsent.callInspect(ins_cmd, vth_cell)
         voltage = extr.extractVth(output)
-        print('\nVth of %.3e : %.3f\n' % (time, voltage))
-        ins_cmd.writeVth(time, voltage)
+        print('\nVth of %s at %.6e : %.3f\n' % (vth_cell, time, voltage))
+        extr.writeVth(prj_path, time, voltage, vth_cell)
     return
 
 
@@ -98,12 +98,12 @@ def senSolveVthSingleTime(prj_path, trip_cells, time, vth_cell):
     sde_cmd.build()
     callsent.callSdevice(sde_cmd)
     # deal with inspect
-    ins_cmd = inspect.InspectCmdFile(trip_cells)
+    ins_cmd = inspect.InspectCmdFile(trip_cells, vth_cell)
     ins_cmd.build()
     output = callsent.callInspect(ins_cmd)
     voltage = extr.extractVth(output)
-    print('\nVth of %.3e : %.3f\n' % (time, voltage))
-    ins_cmd.writeVth(time, voltage)
+    print('\nVth of %s at %.6e : %.3f\n' % (vth_cell, time, voltage))
+    extr.writeVth(prj_path, time, voltage, vth_cell)
     return
 
 

@@ -16,13 +16,15 @@ def callSse(sse_cmd):
     prj_path = sse_cmd.prj_path
     log_filepath = os.path.join(prj_path, sen.Logfile_Sse)
     # logfile = open(log_filepath, 'w+')
+    work_dir = os.getcwd()
     chdirToSentrun(prj_path)
     command = 'sde -e -l %s' % sen.Sse_Cmd_File
     subprocess.call(command.split(' '))
-    #output = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE).communicate()[0]
-    #print(output.decode('utf-8'))
-    #subprocess.check_output(command.split(' '))
-    logfile.close()
+    # output = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE).communicate()[0]
+    # print(output.decode('utf-8'))
+    # subprocess.check_output(command.split(' '))
+    # logfile.close()
+    os.chdir(work_dir)  # it is important to change back
     return
 
 
@@ -30,20 +32,24 @@ def callSdevice(sde_cmd):
     prj_path = sde_cmd.prj_path
     log_filepath = os.path.join(prj_path, sen.Logfile_Sdevice)
     # logfile = open(log_filepath, 'w+')
+    work_dir = os.getcwd()
     chdirToSentrun(prj_path)
     command = 'sdevice %s' % sen.Sde_Cmd_File
     subprocess.call(command.split(' '))
-    logfile.close()
+    # logfile.close()
+    os.chdir(work_dir)  # it is important to change back
     return
 
 
 def callInspect(ins_cmd):
     prj_path = ins_cmd.prj_path
+    work_dir = os.getcwd()
     chdirToSentrun(prj_path)
     print('\nExtracting threshold voltage.\n')
     command = 'inspect -batch -f %s' % sen.Inspect_Cmd_File
     output = subprocess.check_output(command.split(' '))
     output_str = output.decode(encoding='UTF-8')
+    os.chdir(work_dir)  # it is important to change back
     return output_str
 
 def test():

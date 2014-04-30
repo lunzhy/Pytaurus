@@ -64,9 +64,3 @@ class InspectCmdFile():
         self.setParameters()
         self.writeCmdFile()
         return
-
-    def writeVth(self, time, voltage):
-        vth_file = os.path.join(self.prj_path, sen.Folder_Miscellaneous, sen.File_Vth)
-        with open(vth_file, 'a+') as file:
-            file.write('%e\t%s\n' % (time, voltage))
-        return

@@ -22,13 +22,13 @@ def _genISPP(volStart, volEnd, startTime=1e-8, endTime=1e-4, timeStep=5, volStep
             time_total = time_offset + timestep
             time_vth_list.append((time_total, vg1, vg2, vg3))
         time_offset += math.pow(10, endTime_exp)
-    for index, time_vth in enumerate(time_vth_list):
-        print('%s\t\t%.8e\t\t%.5f\t\t%.5f\t\t%.5f' % ((index+1,) + time_vth))
+    # for index, time_vth in enumerate(time_vth_list):
+    #     print('%s\t\t%.8e\t\t%.5f\t\t%.5f\t\t%.5f' % ((index+1,) + time_vth))
     return time_vth_list
 
 
 def _genTimestep():
-    time_vth_list = _genISPP(12, 16)
+    time_vth_list = _genISPP(8, 18)
     return time_vth_list
 
 

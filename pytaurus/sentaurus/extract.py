@@ -127,6 +127,19 @@ def _calcVfbShift(prj_path, xcoord_start, xcoord_end, ret_time=False):
     return None
 
 
+def writeVth(prj_path, time, voltage, cell):
+    vth_cell1 = str(voltage) if cell == 'cell1' else 'N/A'
+    vth_cell2 = str(voltage) if cell == 'cell2' else 'N/A'
+    vth_cell3 = str(voltage) if cell == 'cell3' else 'N/A'
+    vth_file = os.path.join(prj_path, sen.Folder_Miscellaneous, sen.File_Vth)
+    if not os.path.exists(vth_file):
+        with open(vth_file, 'w+') as file:
+            file.write('Time [s]\t\tCell1 [V]\tCell2 [V]\tCell3 [V]\n')
+    with open(vth_file, 'a+') as file:
+        file.write('%.5e\t\t\t%s\t\t%s\t\t%s\n' % (time, vth_cell1, vth_cell2, vth_cell3))
+    return
+
+
 def test():
     parsePlotFile()
     return
