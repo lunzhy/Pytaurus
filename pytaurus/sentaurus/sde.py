@@ -264,10 +264,26 @@ class SdeCmdFileTripleFull(SdeCmdFile):
             self.params['tc.gate.voltage.second'] = self.structure.getParam('tc.gate.voltage.pass')
             self.params['tc.gate.voltage.third'] = self.structure.getParam('tc.gate.voltage.read')
             self.params['tc.drain.voltage'] = self.structure.getParam('tc.drain.voltage.read')
+
         # CurrentPlot
-        if self.vth_cell is None:
+        if self.vth_cell is None:  # solve initial value mode
+            self.params['plot.time.gate.first'] = 'Time=(-1)'
+            self.params['plot.time.gate.second'] = 'Time=(-1)'
+            self.params['plot.time.drain'] = 'Time=(-1)'
             self.params['plot.last'] = 'CurrentPlot ( Time=(1) )'
-        else:
+            if float(self.params['tc.gate.voltage.third']) == 0:
+                if float(self.params['tc.drain.voltage']) == 0:
+                    if float(self.params['tc.gate.voltage.second']) == 0:
+                        self.params['plot.time.gate.first'] = 'Time=(1)'
+                    else:
+                        self.params['plot.time.gate.second'] = 'Time=(1)'
+                else:
+                    self.params['plot.time.drain'] = 'Time=(1)'
+
+        else:  # solve vth mode
+            self.params['plot.time.gate.first'] = 'Time=(-1)'
+            self.params['plot.time.gate.second'] = 'Time=(-1)'
+            self.params['plot.time.drain'] = 'Time=(-1)'
             self.params['plot.last'] = ''
 
         # AreaFactor

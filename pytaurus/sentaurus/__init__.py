@@ -32,8 +32,10 @@ Subs_Data_File = r'substrate.in'
 Plot_Subs_File = r'potential_fermi.out'
 
 Tdr_File = r'%s_msh.tdr' % Cell_Structure
-Plot_File = r'final_%s_des.plt' % Cell_Structure
-Plot_File_Init = r'%s_des.plt' % Cell_Structure
+Plot_File = r'final_%s_des.plt' % Cell_Structure if Cell_Structure == 'triple' \
+                                                    else r'extract_%s_des.plt' % Cell_Structure
+Plot_File_Init = r'%s_des.plt' % Cell_Structure if Cell_Structure == 'triple' \
+                                                    else r'%s_des.plt' % Cell_Structure
 
 
 #the folder and file name for solving vth

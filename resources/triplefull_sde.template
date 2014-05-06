@@ -53,8 +53,9 @@ CurrentPlot
 Solve
 {
     Coupled ( Iterations=50 ) { Poisson }
-    Coupled { Poisson Electron Hole }
+    Coupled { Poisson Electron }
 
+    NewCurrentPrefix="extract_"
     Quasistationary
     (
         InitialStep=1e-3        Increment=1.6
@@ -62,7 +63,7 @@ Solve
         Goal{ Name="%gate.first.ramp%"
         Voltage=%tc.gate.voltage.first%}
     ){ Coupled { Poisson }
-       CurrentPlot ( Time=(-1)) }
+       CurrentPlot ( %plot.time.gate.first% ) }
 
     Quasistationary
     (
@@ -71,7 +72,7 @@ Solve
         Goal{ Name="%gate.second.ramp%"
         Voltage=%tc.gate.voltage.second%}
     ){ Coupled { Poisson }
-       CurrentPlot ( Time=(-1) ) }
+       CurrentPlot ( %plot.time.gate.second% ) }
 
     Quasistationary
     (
@@ -80,9 +81,8 @@ Solve
         Goal{ Name="drain"
         Voltage=%tc.drain.voltage%}
     ){ Coupled { Poisson Electron }
-       CurrentPlot ( Time=(-1)) }
+       CurrentPlot ( %plot.time.drain% ) }
 
-    NewCurrentPrefix="final_"
     Quasistationary
     (
         InitialStep=1e-3        Increment=1.6       Decrement=4

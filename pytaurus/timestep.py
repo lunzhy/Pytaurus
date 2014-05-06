@@ -8,6 +8,16 @@ import pytaurus.sentaurus as sen
 import pytaurus.env as env
 
 def _genISPP(volStart, volEnd, startTime=1e-8, endTime=1e-4, timeStep=5, volStep=1):
+    """
+
+    @param volStart:
+    @param volEnd:
+    @param startTime:
+    @param endTime:
+    @param timeStep:
+    @param volStep:
+    @return: (time, vol_gate1, vol_gate2, vol_gate3)
+    """
     # step time 1us, step 1V
     time_list, vg1_list, vg2_list, vg3_list = [], [], [], []
     startTime_exp = int(math.log10(startTime))
@@ -17,7 +27,7 @@ def _genISPP(volStart, volEnd, startTime=1e-8, endTime=1e-4, timeStep=5, volStep
     time_offset = 0
     vg2_internal = np.arange(volStart, volEnd+1, 1)
     for vg2 in vg2_internal:
-        time_internal = np.logspace(startTime_exp, endTime_exp, timeStep*(endTime_exp-startTime_exp))
+        time_internal = np.logspace(startTime_exp, endTime_exp, timeStep*(endTime_exp-startTime_exp)+1)
         for timestep in time_internal:
             time_total = time_offset + timestep
             time_vth_list.append((time_total, vg1, vg2, vg3))
@@ -27,8 +37,49 @@ def _genISPP(volStart, volEnd, startTime=1e-8, endTime=1e-4, timeStep=5, volStep
     return time_vth_list
 
 
+def _sidePrgCenterPrg(prgVol=16, passVol=8, prgTime=200e-6):
+    time_vth_list = []
+    time_offset = 0
+    time_single = np.logspace(-8, math.log10(prgTime), 50)
+    # side programming
+    vg1 = prgVol
+    vg2 = passVol
+    vg3 = prgVol
+    for timestep in time_single:
+        time_total = time_offset + timestep
+        time_vth_list.append((time_total, vg1, vg2, vg3))
+    # center programming
+    vg1 = passVol
+    vg2 = prgVol
+    vg3 = passVol
+    time_offset += prgTime
+    for timestep in time_single:
+        time_total = time_offset + timestep
+        time_vth_list.append((time_total, vg1, vg2, vg3))
+    return time_vth_list
+
+
+def _retentionAfterPrg(prgVol=16, prgTime=200e-6, retTime=1e6):
+    time_vth_list = _sidePrgCenterPrg(prgVol=prgVol, prgTime=prgTime, passVol=0)
+    time_offset = time_vth_list[-1][0]
+    # 10-2 -> 1e4
+    time_retention = np.logspace(-2, 4, 60)
+    for timestep in time_retention:
+        time_total = time_offset + timestep
+        time_vth_list.append((time_total, 0, 0, 0))
+    # 1e4 -> 1e6
+    time_offset = time_vth_list[-1][0]
+    time_retention = np.linspace(1e4, retTime-1e4, 100)
+    for timestep in time_retention:
+        time_total = time_offset + timestep
+        time_vth_list.append((time_total, 0, 0, 0))
+    return time_vth_list
+
+
 def _genTimestep():
-    time_vth_list = _genISPP(8, 18)
+    # time_vth_list = _genISPP(8, 18)
+    time_vth_list = _sidePrgCenterPrg(passVol=0)
+    # time_vth_list = _retentionAfterPrg()
     return time_vth_list
 
 
@@ -41,5 +92,13 @@ def writeTimestepFile(prjPath):
             timestep_file.write('%s\t\t%.8e\t\t%.5f\t\t%.5f\t\t%.5f\n' % ((index + 1,) + time_vth))
 
 
+def _printTimestep():
+    time_vth_list = _genTimestep()
+    for index, time_vth in enumerate(time_vth_list):
+        print(index+1, time_vth)
+    return
+
+
 if __name__ == '__main__':
-    writeTimestepFile(env.Debug_Directory)
+    _printTimestep()
+    # writeTimestepFile(env.Debug_Directory)

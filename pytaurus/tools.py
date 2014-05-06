@@ -1,9 +1,10 @@
 __author__ = 'lunzhy'
-import os, sys, math, re
+import os, sys, math, re, shutil
 path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir))
 if not path in sys.path:
     sys.path.append(path)
 from pytaurus import *
+import pytaurus.env as env
 from operator import itemgetter
 
 
@@ -16,11 +17,11 @@ def prepareProject(prj_path):
 
 def cleanProject(prj_path):
     #clean the directory recursively
-    delFiles(prj_path)
+    _delFiles(prj_path)
     return
 
 
-def delFiles(path):
+def _delFiles(path):
     for file in os.listdir(path):
         if file in Files_Remain:
             continue
@@ -28,7 +29,7 @@ def delFiles(path):
         if os.path.isfile(file_path):
             os.remove(file_path)
         else:
-            delFiles(file_path)
+            _delFiles(file_path)
     return
 
 
@@ -58,3 +59,19 @@ def searchFilePathByTime(folder, pattern, time):
     time_diff = [math.fabs(time - time_path[0]) for time_path in time_filepath]
     min_index = time_diff.index(min(time_diff))
     return time_filepath[min_index][1]
+
+
+def genProject(prjPath):
+    if os.path.exists(prjPath):
+        print('[Warning] Project already exist.')
+        return
+    # generate required folders
+    for folder in Folers_In_Projects:
+        folder_path = os.path.join(prjPath, folder)
+        os.makedirs(folder_path)
+
+    # copy user.param file from debug folder
+    param_debug = os.path.abspath(os.path.join(env.Debug_Directory, sen.User_Param_File))
+    dst_path = os.path.join(prjPath, sen.User_Param_File)
+    shutil.copy(param_debug, dst_path)
+    return

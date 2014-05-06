@@ -15,7 +15,7 @@ import pytaurus.sentaurus.extract as extr
 import pytaurus.structure as structure
 import pytaurus.timestep as timestep
 
-Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'parsevth', 'timestep']
+Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'parsevth', 'timestep', 'project']
 # the argument list
 # pyt clean [prj_path]                                      | clean the files except the remained in this folder
 # pyt prepare [prj_path]                                    | mkdir all the folders needed by the SimCTM
@@ -25,6 +25,7 @@ Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'par
 # pyt solvevth [prj_path] [cell('cell2')] [time_list]       | solve vth using sentaurus of the project
 # pyt parsevth [prj_path]                                   | calculate vth through flatband shift of each time step
 # pyt timestep [prj_path]                                   | generate time step input file
+# pyt project [prj_path]                                    | generate project folders and files
 
 
 def isSolveVthTime(time):
@@ -128,6 +129,9 @@ def main():
         print('[Error] Wrong argument keyword: %s' % keyword)
         return
     prj_path, curr_arg_list = curr_arg_list[0], curr_arg_list[1:]
+    if keyword == 'project':
+        tools.genProject(prj_path)
+        return
     # if not os.path.isabs(prj_path):
     #     # SimCTM sends only the project name,
     #     prj_path = os.path.join(os.path.abspath(os.curdir), prj_path)
@@ -167,6 +171,8 @@ def main():
         senParseVth(prj_path, trip_cells)
     elif keyword == 'timestep':
         timestep.writeTimestepFile(prj_path)
+    elif keyword == 'project':
+        tools.genProject(prj_path)
     else:
         print('Wrong argument keyword.')
         return
