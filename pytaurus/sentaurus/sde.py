@@ -1,5 +1,5 @@
 __author__ = 'Lunzhy'
-import os, sys, re, shutil
+import os, sys, re, shutil, time
 path = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir))
 if not path in sys.path:
     sys.path.append(path)
@@ -13,6 +13,8 @@ def movePlotFile(prj_path):
         origin_path = os.path.join(prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Init)
     dst_path = os.path.join(prj_path, sen.Folder_Exchange_Data, sen.Plot_Subs_File)
     shutil.copy(origin_path, dst_path)
+    time.sleep(1)
+    os.remove(origin_path)
     return
 
 
@@ -230,10 +232,13 @@ class SdeCmdFileTripleFull(SdeCmdFile):
             self.params[param] = self.structure.getParam(param)
 
         # set the points
-        points = ''
-        for key, coord_tup in self.channel_points.items():
-            points += ('\t\t%s\n' % (coord_tup,))
-        self.params['points'] = points
+        if self.vth_cell is None:
+            points = ''
+            for key, coord_tup in self.channel_points.items():
+                points += ('\t\t%s\n' % (coord_tup,))
+            self.params['points'] = points
+        else:
+            self.params['points'] = '(0, 0)'  # in CurrentPlot section, empty points is invalid
 
         # interface charge concentration
         self.params['charge'] = self.lines_charge
@@ -296,6 +301,12 @@ class SdeCmdFileTripleFull(SdeCmdFile):
                 self.params['area.factor'] = 'AreaFactor=%se-3' % self.structure.getParam('tc.gate2.width')
             elif self.vth_cell == 'cell3':
                 self.params['area.factor'] = 'AreaFactor=%se-3' % self.structure.getParam('tc.gate3.width')
+
+        # Last solve
+        if self.vth_cell is None:
+            self.params['solve.last'] = 'Poisson'
+        else:
+            self.params['solve.last'] = 'Poisson Electron'
         return
 
 def test():

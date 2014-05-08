@@ -53,6 +53,8 @@ CurrentPlot
 Solve
 {
     Coupled ( Iterations=50 ) { Poisson }
+
+    NewCurrentPrefix="init_"
     Coupled { Poisson Electron }
 
     NewCurrentPrefix="extract_"
@@ -89,7 +91,7 @@ Solve
         MinStep=1e-5            MaxStep = 0.2
         Goal{ Name="%gate.third.ramp%"
         Voltage=%tc.gate.voltage.third%}
-    ){ Coupled (Iterations=15){ Poisson Electron }
+    ){ Coupled (Iterations=15){ %solve.last% }
        %plot.last%
       }
 }
