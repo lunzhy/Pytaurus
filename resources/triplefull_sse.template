@@ -9,7 +9,7 @@
 ;parameters from user input, thickness and length values are in [nm]
 (define ThicknessGate %tc.iso.thick%)
 (define ThicknessStack %tc.stack.thick%)
-(define ThicknessChannel 40)                        ;channel thickness is fixed in the project
+(define ThicknessChannel (* 2 %subs.radius%))       ;channel thickness is not fixed in the project
 (define LengthIsolation1 %tc.iso1.width%)
 (define LengthGate1 %tc.gate1.width%)
 (define LengthIsolation2 %tc.iso2.width%)
@@ -18,7 +18,7 @@
 (define LengthGate3 %tc.gate3.width%)
 (define LengthIsolation4 %tc.iso4.width%)
 (define SourceDrainLength 30)                       ;source and drain length is fixed
-(define ChannelDoping 1e15)                         ;channel doping is fixed
+(define ChannelDoping %subs.doping%)                ;channel doping is not fixed
 (define SourceDrainDoping 5e20)                     ;source and drain doping is fixed
 
 <split> no.1

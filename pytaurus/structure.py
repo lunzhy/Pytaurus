@@ -81,7 +81,7 @@ class TripleCells:
         SiO2_dielectric = self.mat_params[('SiO2', 'dielectricConstant')]
         equi_stack_thick = (float(tunnel_thick) / float(tunnel_dielectric) + float(trap_thick) / float(trap_dielectric)
                             + float(block_thick) / float(block_dielectric)) * float(SiO2_dielectric)
-        self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick) # in nm
+        self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick)  # in nm
         return
 
     def _setNonOccur(self):

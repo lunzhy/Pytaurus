@@ -11,7 +11,7 @@ Electrode
     { Name="source"         Voltage=0.0}
     { Name="drain"          Voltage=0.0}
     { Name="gate1"          Voltage=0       WorkFunction=%tc.gate1.workfunction%}
-    { Name="gate2"          Voltage=0       WorkFunction=%tc.gate2.workfunction%}
+    { Name="gate2"          Voltage=-3      WorkFunction=%tc.gate2.workfunction%}
     { Name="gate3"          Voltage=0       WorkFunction=%tc.gate3.workfunction%}
 }
 

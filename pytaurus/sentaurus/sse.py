@@ -20,7 +20,6 @@ class SseCmdFile:
             self.template_cmdfile = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                             os.pardir, os.pardir, 'resources', sen.Resource_Sse_File))
             self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sse_Cmd_File)
-        # self.template_cmdfile = file_path
         self.cmd_lines = []
         return
 

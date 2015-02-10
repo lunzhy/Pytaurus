@@ -92,11 +92,57 @@ def _sidePrg(prgVol=16, passVol=8, prgTime=0.01):
         time_total = time_offset + timestep
         time_vth_list.append((time_total, vg1, vg2, vg3))
     return time_vth_list
-    return
 
 
-def _readDisturb(readTime=1e6, readVol=6, isSidePrg=True):
-    time_vth_list = _sidePrg() if isSidePrg is True else []
+def _centerPrg(offsetTime=0, prgVol=16, passVol=8, prgTime=0.01, step=5):
+    time_vth_list = []
+    start_time_exp = -8
+    steps = (math.log10(prgTime) - start_time_exp) * step
+    time_single = np.logspace(start_time_exp, math.log10(prgTime), steps)
+    # side programming
+    vg1 = passVol
+    vg2 = prgVol
+    vg3 = passVol
+    for timestep in time_single:
+        time_total = offsetTime + timestep
+        time_vth_list.append((time_total, vg1, vg2, vg3))
+    return time_vth_list
+
+
+def _centerRetAfterPrg(prgVol= 16, retTime=1e6, retStep=10, retVol=0):
+    time_vth_list = _centerPrg(prgVol=prgVol, passVol=0, prgTime=0.01, step=5)
+    time_offset = time_vth_list[-1][0]
+    start_time_exp = 2
+    steps = (math.log10(retTime) - start_time_exp) * retStep
+    time_retention = np.logspace(start_time_exp, math.log10(retTime), steps+1)
+    for timestep in time_retention:
+        time_total = time_offset + timestep
+        time_vth_list.append((time_total, 0, retVol, 0))
+    return time_vth_list
+
+
+def _allRetAfterPrg(retTime=1e6, retStep=10, retVol=0, prgVol=16, passVol=0):
+    time_vth_list = _centerPrg(prgVol=prgVol, passVol=passVol, prgTime=0.1, step=8)
+    time_offset = time_vth_list[-1][0]
+    start_time_exp = -2
+    steps = (math.log10(retTime) - start_time_exp) * retStep
+    time_retention = np.logspace(start_time_exp, math.log10(retTime), steps + 1)
+    for timestep in time_retention:
+        time_total = time_offset + timestep
+        time_vth_list.append((time_total, retVol, retVol, retVol))
+    return time_vth_list
+
+
+def _sidePrgAndRetention(retTime=1e6, prgVol=16):
+    return _allRetAfterPrg(retTime=retTime, prgVol=0, passVol=prgVol)
+
+
+def _readDisturb(readTime=1e6, readVol=6, isSidePrg=True, isCenterPrg=True):
+    time_vth_list = []
+    side_vth_list = _sidePrg(passVol=8) if isSidePrg is True else []
+    time_offset = 0 if len(side_vth_list)==0 else side_vth_list[-1][0]
+    center_vth_list = _centerPrg(offsetTime=time_offset) if isCenterPrg is True else []
+    time_vth_list += side_vth_list + center_vth_list
     start_time_exp = -2
     steps = (math.log10(readTime) - start_time_exp) * 10
     time_single = np.logspace(start_time_exp, math.log10(readTime), steps)
@@ -111,7 +157,10 @@ def _genTimestep():
     # time_vth_list = _genISPP(8, 18)
     # time_vth_list = _sidePrgCenterPrg(prgTime=1e-2)
     # time_vth_list = _retentionAfterPrg()
-    time_vth_list = _readDisturb(isSidePrg=True, readVol=0)
+    # time_vth_list = _readDisturb(isSidePrg=True, readVol=0, isCenterPrg=True)
+    time_vth_list = _centerRetAfterPrg(prgVol=14, retStep=8, retTime=1e7, retVol=0)
+    # time_vth_list = _allRetAfterPrg(retTime=1e6, retStep=10, passVol=20, prgVol=20)
+    # time_vth_list = _sidePrgAndRetention(retTime=3e8, prgVol=18)
     return time_vth_list
 
 

@@ -130,6 +130,8 @@ class SdeCmdFile():
 
     def readInterfaceCharge(self):
         interface_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.File_Interface_Vfb)
+        print(interface_filepath)
+        exit(0)
         file = open(interface_filepath)
         infoline = file.readline() #read the information line
         regions_name = ['gate1', 'iso2', 'gate2', 'iso3', 'gate3']

@@ -58,13 +58,13 @@ def parsePlotFile(prj_path):
 
 
 def extractVth(output):
-    patt = re.compile(r'Vth\s+\d+.\d+')
+    patt = re.compile(r'Vth\s+(-\d+|\d+).\d+')
     match = re.search(patt, output)
     if match is None:
         print('No vth extracted.')
     else:
         voltage = match.group()
-    voltage = float(voltage[4:])
+    voltage = float(voltage[3:])  # remove Vth string
     return voltage
 
 
