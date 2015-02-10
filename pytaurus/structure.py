@@ -8,11 +8,7 @@ import pytaurus.sentaurus as sen
 
 
 class TripleCells:
-    def __init__(self, prj_path, structure='triple'):
-        """
-        @structure: triple | triplefull, the structure name
-        """
-        self.structure = structure
+    def __init__(self, prj_path):
         self.prj_path = prj_path
         self.current_material = ''
         self.params = {}
@@ -52,6 +48,8 @@ class TripleCells:
         return
 
     def getParam(self, name):
+        if name is 'tc.junction':
+            return int(self.params[name])
         return self.params[name]
 
     def getMatParam(self, name):
@@ -61,8 +59,6 @@ class TripleCells:
         default_param_path = platform.Default_Param_Path
         self._readParamFile(default_param_path)
         self._readParamFile(self.user_param_path)
-        # lengths of iso1 and iso4 are also from file for structure Triple
-        # self.setNonOccur()
         self._setEquiStackThick()
         self._calcChannelPoints()
         self._writeChannelPoints()
@@ -84,22 +80,16 @@ class TripleCells:
         self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick)  # in nm
         return
 
-    def _setNonOccur(self):
-        self.params['tc.iso1.width'] = self.params['tc.iso2.width']
-        self.params['tc.iso4.width'] = self.params['tc.iso3.width']
-        return
-
     def _calcChannelPoints(self):
         nm_in_um = 1e-3
         y_coord = 0
         offset = 0
         # under iso1
-        if self.structure is 'triplefull':
-            grid_num = int(self.params['tc.iso1.width.grid'])
-            grid_length = float(self.params['tc.iso1.width']) / grid_num
-            for grid in range(grid_num):
-                x_coord = offset + grid * grid_length
-                self.channel_points.append((x_coord, y_coord))
+        grid_num = int(self.params['tc.iso1.width.grid'])
+        grid_length = float(self.params['tc.iso1.width']) / grid_num
+        for grid in range(grid_num):
+            x_coord = offset + grid * grid_length
+            self.channel_points.append((x_coord, y_coord))
         # under gate1
         offset += float(self.params['tc.iso1.width'])
         grid_num = int(self.params['tc.gate1.width.grid'])
@@ -132,19 +122,16 @@ class TripleCells:
         offset += float(self.params['tc.iso3.width'])
         grid_num = int(self.params['tc.gate3.width.grid'])
         grid_length = float(self.params['tc.gate3.width']) / grid_num
-        if self.structure is 'triple':
-            grid_num += 1  # the last is different from previous in structure Triple
         for grid in range(grid_num):
             x_coord = offset + grid * grid_length
             self.channel_points.append((x_coord, y_coord))
         # under iso4
-        if self.structure is 'triplefull':
-            offset += float(self.params['tc.gate3.width'])
-            grid_num = int(self.params['tc.iso4.width.grid'])
-            grid_length = float(self.params['tc.iso4.width']) / grid_num
-            for grid in range(grid_num+1):
-                x_coord = offset + grid * grid_length
-                self.channel_points.append((x_coord, y_coord))
+        offset += float(self.params['tc.gate3.width'])
+        grid_num = int(self.params['tc.iso4.width.grid'])
+        grid_length = float(self.params['tc.iso4.width']) / grid_num
+        for grid in range(grid_num+1):
+            x_coord = offset + grid * grid_length
+            self.channel_points.append((x_coord, y_coord))
         return
 
     def _writeChannelPoints(self):

@@ -32,9 +32,9 @@ def isSolveVthTime(time):
     return tools.isMajorTime(time)
 
 
-def buildTripleCell(prj_path, cell_structure='triple'):
+def buildTripleCell(prj_path):
     env.convertParamFile(prj_path)
-    cells = structure.TripleCells(prj_path, cell_structure)
+    cells = structure.TripleCells(prj_path)
     cells.build()
     return cells
 
@@ -48,14 +48,22 @@ def senStructure(trip_cells):
 
 def senPotential(prj_path, trip_cells, vg1=None, vg2=None, vg3=None):
     trip_cells.refreshGateVoltage(vg1, vg2, vg3)
-    if sen.Cell_Structure == 'triple':
-        sde_cmd = sde.SdeCmdFile(trip_cells)
-    elif sen.Cell_Structure == 'triplefull':
-        sde_cmd = sde.SdeCmdFileTripleFull(trip_cells)
+    sde_cmd = sde.SdeCmdFile(trip_cells)
     sde_cmd.build()
     callsent.callSdevice(sde_cmd)
-    sde.movePlotFile(prj_path)
+    sde_cmd.move_plot_file()
     extr.parsePlotFile(prj_path)
+    return
+
+
+def senInspect(triple_cells, time, vth_cell):
+    # deal with inspect
+    ins_cmd = inspect.InspectCmdFile(triple_cells, vth_cell)
+    ins_cmd.build()
+    output = callsent.callInspect(ins_cmd)
+    voltage = extr.extractVth(output)
+    print('\nVth of %s at %.6e : %.3f\n' % (vth_cell, time, voltage))
+    extr.writeVth(triple_cells.prj_path, time, voltage, vth_cell)
     return
 
 
@@ -71,19 +79,10 @@ def senSolveAllVth(prj_path, trip_cells, vth_cell):
             continue
         # copy charge file before call sdevice
         sde.copyChargeFile(prj_path, file_path)
-        if sen.Cell_Structure == 'triple':
-            sde_cmd = sde.SdeCmdFile(trip_cells, solve_vth=True)
-        elif sen.Cell_Structure == 'triplefull':
-            sde_cmd = sde.SdeCmdFileTripleFull(trip_cells, vth_cell)
+        sde_cmd = sde.SdeCmdFile(trip_cells, vth_cell)
         sde_cmd.build()
         callsent.callSdevice(sde_cmd)
-        # deal with inspect
-        ins_cmd = inspect.InspectCmdFile(trip_cells, vth_cell)
-        ins_cmd.build()
-        output = callsent.callInspect(ins_cmd, vth_cell)
-        voltage = extr.extractVth(output)
-        print('\nVth of %s at %.6e : %.3f\n' % (vth_cell, time, voltage))
-        extr.writeVth(prj_path, time, voltage, vth_cell)
+        senInspect(trip_cells, time, vth_cell)
     return
 
 
@@ -92,19 +91,10 @@ def senSolveVthSingleTime(prj_path, trip_cells, time, vth_cell):
     file_path = tools.searchFilePathByTime(substrate_folder, sen.Charge_File_Prefix, time)
     # copy charge file before call sdevice
     sde.copyChargeFile(prj_path, file_path)
-    if sen.Cell_Structure == 'triple':
-        sde_cmd = sde.SdeCmdFile(trip_cells, solve_vth=True)
-    elif sen.Cell_Structure == 'triplefull':
-        sde_cmd = sde.SdeCmdFileTripleFull(trip_cells, vth_cell)
+    sde_cmd = sde.SdeCmdFile(trip_cells, vth_cell)
     sde_cmd.build()
     callsent.callSdevice(sde_cmd)
-    # deal with inspect
-    ins_cmd = inspect.InspectCmdFile(trip_cells, vth_cell)
-    ins_cmd.build()
-    output = callsent.callInspect(ins_cmd)
-    voltage = extr.extractVth(output)
-    print('\nVth of %s at %.6e : %.3f\n' % (vth_cell, time, voltage))
-    extr.writeVth(prj_path, time, voltage, vth_cell)
+    senInspect(trip_cells, time, vth_cell)
     return
 
 
@@ -125,7 +115,7 @@ def senParseVth(prj_path, trip_cells):
 def main():
     curr_arg_list = sys.argv[1:]
     keyword, curr_arg_list = curr_arg_list[0], curr_arg_list[1:]
-    if not keyword in Effective_argument:
+    if keyword not in Effective_argument:
         print('[Error] Wrong argument keyword: %s' % keyword)
         return
     prj_path, curr_arg_list = curr_arg_list[0], curr_arg_list[1:]
@@ -138,7 +128,7 @@ def main():
     if not os.path.isdir(prj_path):
         print('[Error] Wrong project directory: %s' % prj_path)
         return
-    trip_cells = buildTripleCell(prj_path, cell_structure=sen.Cell_Structure)
+    trip_cells = buildTripleCell(prj_path)  # triplefull
     if keyword == 'clean':
         tools.cleanProject(prj_path)
     elif keyword == 'prepare':

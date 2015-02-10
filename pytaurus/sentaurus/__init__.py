@@ -1,27 +1,45 @@
 __author__ = 'Lunzhy'
 
-Cell_Structure = 'triplefull'  # triple | triplefull
+
+def get_file_name(template, pyt_structure):
+    if pyt_structure is 'DoubleGate':
+        return template % 'triplefull'   # for historical reason
+    elif pyt_structure is 'Planar':
+        return template % 'planar'
 
 # parameter file name
 User_Param_File = r'user.param'
 TimeStep_File = 'timestep.in'
 Trapped_In_File = 'trapped.in'
 
+
 # the template filename in resource
-Resource_Sse_File = r'%s_sse.template' % Cell_Structure
-Resource_Sde_File = r'%s_sde.template' % Cell_Structure
-Resource_Sde_File_Vth = r'triple_sde_vth.template' if Cell_Structure == 'triple' \
-                        else r'%s_sde.template' % Cell_Structure
-Resource_Ins_File = r'inspect.template'
+def Resource_Sse_File(pyt_structure):
+    return get_file_name(r'%s_sse.template', pyt_structure)
+
+
+Resource_Sde_File = 'sde.template'
+
+
+def Resource_Sde_File_Vth(pyt_structure):
+    return get_file_name(r'%s_sde.template', pyt_structure)
 
 
 # the folder to run sentaurus under project folder
 Folder_Run_Sentaurus = r'sentrun'
 Folder_Exchange_Data = r'exchange'
 
+
 # the generated command name for sse dan sdevice
-Sse_Cmd_File = r'sse_%s.cmd' % Cell_Structure
-Sde_Cmd_File = r'sde_%s.cmd' % Cell_Structure
+def Sse_Cmd_File(pyt_structure):
+    return get_file_name(r'sse_%s.cmd', pyt_structure)
+
+
+def Sde_Cmd_File(pyt_structure):
+    return get_file_name(r'sde_%s.cmd', pyt_structure)
+
+
+Resource_Ins_File = r'inspect.template'
 Inspect_Cmd_File = r'ins.cmd'
 
 # names of file for data exchange
@@ -32,11 +50,22 @@ File_Interface_Vfb = r'charge.in'
 Subs_Data_File = r'substrate.in'
 Plot_Subs_File = r'potential_fermi.out'
 
-Tdr_File = r'%s_msh.tdr' % Cell_Structure
-Plot_File = r'final_%s_des.plt' % Cell_Structure if Cell_Structure == 'triple' \
-    else r'extract_%s_des.plt' % Cell_Structure
-Plot_File_Init = r'%s_des.plt' % Cell_Structure if Cell_Structure == 'triple' \
-    else r'init_%s_des.plt' % Cell_Structure
+
+def Sde_Out_File(pyt_structure):
+    return get_file_name(r'%s', pyt_structure)
+
+
+def Tdr_File(pyt_structure):
+    return get_file_name(r'%s_msh.tdr', pyt_structure)
+
+
+def Plot_File(pyt_structure):
+    return get_file_name(r'extract_%s_des.plt', pyt_structure)
+
+
+def Plot_File_Init(pyt_structure):
+    return get_file_name(r'init_%s_des.plt', pyt_structure)
+
 
 # the folder and file name for solving vth
 Folder_Substrate = r'Substrate'

@@ -7,6 +7,7 @@ import pytaurus.sentaurus as sen
 
 Cell_gate_dict = {'cell1': 'gate1', 'cell2': 'gate2', 'cell3': 'gate3'}
 
+
 class InspectCmdFile():
     def __init__(self, trip_cells, cell='cell2'):
         self.cells = trip_cells

@@ -62,7 +62,7 @@ def testTripleFull():
     trip_cells.build()
     sse_cmd = sse.SseCmdFile(trip_cells)
     sse_cmd.build()
-    sde_cmd = sde.SdeCmdFileTripleFull(trip_cells)
+    sde_cmd = sde.SdeCmdFile(trip_cells)
     sde_cmd.build()
     return
 
