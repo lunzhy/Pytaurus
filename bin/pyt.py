@@ -129,12 +129,16 @@ def main():
         print('[Error] Wrong project directory: %s' % prj_path)
         return
     trip_cells = buildTripleCell(prj_path)  # triplefull
+
     if keyword == 'clean':
         tools.cleanProject(prj_path)
+
     elif keyword == 'prepare':
         tools.prepareProject(prj_path)
+
     elif keyword == 'structure':
         senStructure(trip_cells)
+
     elif keyword == 'solve':
         arg_list = curr_arg_list
         vg1, vg2, vg3 = None, None, None
@@ -146,6 +150,7 @@ def main():
             elif '-vg3=' in vg_arg:
                 vg3 = vg_arg[5:]
         senPotential(prj_path, trip_cells, vg1=vg1, vg2=vg2, vg3=vg3)
+
     elif keyword == 'solvevth':
         if len(curr_arg_list) == 0:
             senSolveVth(prj_path, curr_arg_list, trip_cells)
@@ -157,10 +162,13 @@ def main():
             else:
                 time_list = [float(time) for time in curr_arg_list]
                 senSolveVth(prj_path, trip_cells, time_list)
+
     elif keyword == 'parsevth':
         senParseVth(prj_path, trip_cells)
+
     elif keyword == 'timestep':
         timestep.writeTimestepFile(prj_path)
+
     elif keyword == 'project':
         tools.genProject(prj_path)
     else:
@@ -170,4 +178,5 @@ def main():
     return
 
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    main()

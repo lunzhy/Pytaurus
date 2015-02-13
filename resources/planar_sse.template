@@ -19,10 +19,13 @@
 (define LengthGate3 %tc.gate3.width%)
 (define LengthIsolation4 %tc.iso4.width%)
 (define SourceDrainLength 30)
-(define ChannelDoping %subs.doping%)  
+(define SubstrateDoping %subs.doping%)
 (define SourceDrainDoping 1e20)
+(define RetrogradeDoping 1e18)
 (define JunctionDepth 45)
-(define ChannelDepth 15)
+(define ChannelDepth 20)
+(define RetrogradeDepth 30)
+(define RetrogradeWidth 45)
 
 
 <split> no.1
@@ -30,8 +33,11 @@
 ;variables used in this command file
 (define Nsubs SubstrateDoping)
 (define Nsd SourceDrainDoping)
+(define Nretro RetrogradeDoping)
 (define JDepth (* 1e-3 JunctionDepth))
 (define ChDepth (* 1e-3 ChannelDepth))
+(define RetroDepth (* 1e-3 RetrogradeDepth))
+(define RetroWidth (* 1e-3 RetrogradeWidth))
 
 (define Tgate (* 1e-3 ThicknessGate))
 (define Tstack (* 1e-3 ThicknessStack))
@@ -260,19 +266,27 @@
 )
 
 ;;halo-like buried heavily-doped region under channel
-(define HaloHalfLength (* 0.3 JDepth))
-(define HaloCenterPos (- tY_subs (* 0.8 JDepth)))
-(sdedr:define-gaussian-profile "Gauss.halo" "BoronActiveConcentration" "PeakPos" 0.0 "PeakVal" (* 10 Nsubs) "Length" HaloHalfLength "Gauss" "Factor" 0.05)
-(sdedr:define-refeval-window "Baseline.halo.gate1" "Line" (position rX_i1 (- tY_subs (* 0.8 JDepth)) 0) (position rX_g1 HaloCenterPos 0))
-(sdedr:define-refeval-window "Baseline.halo.gate2" "Line" (position rX_i2 (- tY_subs (* 0.8 JDepth)) 0) (position rX_g2 HaloCenterPos 0))
-(sdedr:define-refeval-window "Baseline.halo.gate3" "Line" (position rX_i3 (- tY_subs (* 0.8 JDepth)) 0) (position rX_g3 HaloCenterPos 0))
-(sdedr:define-analytical-profile-placement "PlaceAP.halo.gate1" "Gauss.halo" "Baseline.halo.gate1" "Both" "NoReplace")
-(sdedr:define-analytical-profile-placement "PlaceAP.halo.gate2" "Gauss.halo" "Baseline.halo.gate2" "Both" "NoReplace")
-(sdedr:define-analytical-profile-placement "PlaceAP.halo.gate3" "Gauss.halo" "Baseline.halo.gate3" "Both" "NoReplace")
+;(define HaloHalfLength (* 0.3 JDepth))
+;(define HaloCenterPos (- tY_subs (* 0.8 JDepth)))
+;(sdedr:define-gaussian-profile "Gauss.halo" "BoronActiveConcentration" "PeakPos" 0.0 "PeakVal" (* 10 Nsubs) "Length" HaloHalfLength "Gauss" "Factor" 0.05)
+;(sdedr:define-refeval-window "Baseline.halo.gate1" "Line" (position rX_i1 (- tY_subs (* 0.8 JDepth)) 0) (position rX_g1 HaloCenterPos 0))
+;(sdedr:define-refeval-window "Baseline.halo.gate2" "Line" (position rX_i2 (- tY_subs (* 0.8 JDepth)) 0) (position rX_g2 HaloCenterPos 0))
+;(sdedr:define-refeval-window "Baseline.halo.gate3" "Line" (position rX_i3 (- tY_subs (* 0.8 JDepth)) 0) (position rX_g3 HaloCenterPos 0))
+;(sdedr:define-analytical-profile-placement "PlaceAP.halo.gate1" "Gauss.halo" "Baseline.halo.gate1" "Both" "NoReplace")
+;(sdedr:define-analytical-profile-placement "PlaceAP.halo.gate2" "Gauss.halo" "Baseline.halo.gate2" "Both" "NoReplace")
+;(sdedr:define-analytical-profile-placement "PlaceAP.halo.gate3" "Gauss.halo" "Baseline.halo.gate3" "Both" "NoReplace")
+
+;;retrograde doping
+(define RetroHalfLength (/ RetroWidth 2))
+(define RetroCenterPos (- tY_subs RetroWidth))
+(sdedr:define-erf-profile "Erf.retro" "BoronActiveConcentration" "SymPos" RetroHalfLength "MaxVal" Nretro "Length" JErfLength "Erf" "Factor" 0.2)
+(sdedr:define-refeval-window "Baseline.retro" "Line" (position lX_source RetroCenterPos 0) (position rX_drain RetroCenterPos 0))
+(sdedr:define-analytical-profile-placement "PlaceAP.retro" "Erf.retro" "Baseline.retro" "Both" "NoReplace")
+
 
 ;mesh strategy
 ;;substrate
-(sdedr:define-refinement-size "Ref.subs" 10e-3  10e-3  5e-3  5e-3)
+(sdedr:define-refinement-size "Ref.subs" 10e-3  10e-3  3e-3  3e-3)
 (sdedr:define-refinement-region "PlaceRef.subs" "Ref.subs" "R.subs")
 (sdedr:define-refinement-region "PlaceRef.source" "Ref.subs" "R.source")
 (sdedr:define-refinement-region "PlaceRef.drain" "Ref.subs" "R.drain")
@@ -293,8 +307,8 @@
 (sdedr:define-refinement-region "PlaceRF.source" "Ref.sd" "R.source")
 (sdedr:define-refinement-region "PlaceRF.drain" "Ref.sd" "R.drain")
 
-(sdedr:define-refinement-size "Ref.junction" 5e-3  5e-3  0.5e-3  0.5e-3)
-(sdedr:define-refinement-function "Ref.junction" "DopingConcentration" "MaxTransDiff" 0.5)
+(sdedr:define-refinement-size "Ref.junction" 2e-3  2e-3  0.5e-3  0.5e-3)
+(sdedr:define-refinement-function "Ref.junction" "DopingConcentration" "MaxTransDiff" 0.1)
 
 (sdedr:define-refeval-window "RefWin.junction.source" "Rectangle" (position lX_source tY_subs 0) (position (+ rX_source (* 0.3 Lsd)) (- tY_subs (+ (* 1.3 JErfLength) JDepth)) 0))
 (sdedr:define-refeval-window "RefWin.junction.drain" "Rectangle" (position (- lX_drain (* 0.3 Lsd)) (- tY_subs (+ (* 1.3 JErfLength) JDepth)) 0) (position rX_drain tY_subs 0))
@@ -337,14 +351,20 @@
 )
 
 ;;halo
-(sdedr:define-refinement-size "Ref.halo" 3e-3 3e-3 1e-3 1e-3)
-(sdedr:define-refinement-function "Ref.halo" "DopingConcentration" "MaxTransDiff" 0.5)
-(sdedr:define-refeval-window "RefWin.halo.gate1" "Rectangle" (position rX_i1 (- HaloCenterPos HaloHalfLength) 0) (position rX_g1 (+ HaloCenterPos HaloHalfLength) 0))
-(sdedr:define-refeval-window "RefWin.halo.gate2" "Rectangle" (position rX_i2 (- HaloCenterPos HaloHalfLength) 0) (position rX_g2 (+ HaloCenterPos HaloHalfLength) 0))
-(sdedr:define-refeval-window "RefWin.halo.gate3" "Rectangle" (position rX_i3 (- HaloCenterPos HaloHalfLength) 0) (position rX_g3 (+ HaloCenterPos HaloHalfLength) 0))
-(sdedr:define-refinement-placement "PlaceRF.halo.gate1" "Ref.halo" "RefWin.halo.gate1")
-(sdedr:define-refinement-placement "PlaceRF.halo.gate2" "Ref.halo" "RefWin.halo.gate2")
-(sdedr:define-refinement-placement "PlaceRF.halo.gate3" "Ref.halo" "RefWin.halo.gate3")
+;(sdedr:define-refinement-size "Ref.halo" 3e-3 3e-3 1e-3 1e-3)
+;(sdedr:define-refinement-function "Ref.halo" "DopingConcentration" "MaxTransDiff" 0.5)
+;(sdedr:define-refeval-window "RefWin.halo.gate1" "Rectangle" (position rX_i1 (- HaloCenterPos HaloHalfLength) 0) (position rX_g1 (+ HaloCenterPos HaloHalfLength) 0))
+;(sdedr:define-refeval-window "RefWin.halo.gate2" "Rectangle" (position rX_i2 (- HaloCenterPos HaloHalfLength) 0) (position rX_g2 (+ HaloCenterPos HaloHalfLength) 0))
+;(sdedr:define-refeval-window "RefWin.halo.gate3" "Rectangle" (position rX_i3 (- HaloCenterPos HaloHalfLength) 0) (position rX_g3 (+ HaloCenterPos HaloHalfLength) 0))
+;(sdedr:define-refinement-placement "PlaceRF.halo.gate1" "Ref.halo" "RefWin.halo.gate1")
+;(sdedr:define-refinement-placement "PlaceRF.halo.gate2" "Ref.halo" "RefWin.halo.gate2")
+;(sdedr:define-refinement-placement "PlaceRF.halo.gate3" "Ref.halo" "RefWin.halo.gate3")
+
+;;retro
+(sdedr:define-refinement-size "Ref.retro" 3e-3 3e-3 1e-3 1e-3)
+(sdedr:define-refinement-function "Ref.retro" "DopingConcentration" "MaxTransDiff" 0.1)
+(sdedr:define-refeval-window "RefWin.retro" "Rectangle" (position lX_i1 (- RetroCenterPos RetroHalfLength) 0) (position rX_i4 (+ RetroCenterPos RetroHalfLength) 0))
+(sdedr:define-refinement-placement "PlaceRF.retro" "Ref.retro" "RefWin.retro")
 
 ;;main cell
 ;(sdedr:define-refinement-size "Ref.gate2" 0.2e-3 10e-3 0.1e-3 8e-3)

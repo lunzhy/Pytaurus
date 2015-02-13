@@ -2,10 +2,15 @@ __author__ = 'Lunzhy'
 
 
 def get_file_name(template, pyt_structure):
-    if pyt_structure is 'DoubleGate':
-        return template % 'triplefull'   # for historical reason
-    elif pyt_structure is 'Planar':
-        return template % 'planar'
+    if pyt_structure == 'DoubleGate':
+        file_name = template % 'triplefull'   # for historical reason
+    elif pyt_structure == 'Planar':
+        file_name = template % 'planar'
+    try:
+        return file_name
+    except UnboundLocalError:
+        print('Wrong tc.structure name. Error occurs in function get_file_name.')
+
 
 # parameter file name
 User_Param_File = r'user.param'

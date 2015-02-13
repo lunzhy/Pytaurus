@@ -13,7 +13,7 @@ def copyChargeFile(prj_path, charge_file):
     return
 
 
-class SdeCmdFile(SdeCmdFile):
+class SdeCmdFile:
     def __init__(self, triple_cell, solve_vth_cell=None):
         """
         @solve_vth_cell: None for not solving vth, cell1 | cell2 | cell3 for specified cell
@@ -21,15 +21,15 @@ class SdeCmdFile(SdeCmdFile):
         self.vth_cell = solve_vth_cell
         self.params = {}
         self.channel_points = {}
-        self.triple_cell = triple_cell
-        self.pyt_structure = triple_cell.getParam('tc.structure')
+        self.triple_cells = triple_cell
+        self.pyt_structure = triple_cell.get_param('tc.structure')
         self.prj_path = triple_cell.prj_path
         self.template_filepath = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                  os.pardir, os.pardir, 'resources',
                                                  sen.Resource_Sde_File))
         self.cmd_lines = []
         self.lines_charge = ''
-        self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sde_Cmd_File)
+        self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sde_Cmd_File(self.pyt_structure))
         return
 
     def _copy_cmd_file_to_prj(self):
@@ -43,7 +43,7 @@ class SdeCmdFile(SdeCmdFile):
         origin_path = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File(self.pyt_structure))
         if not os.path.exists(origin_path):
             origin_path = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Plot_File_Init(self.pyt_structure))
-        dst_path = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Plot_Subs_File(self.pyt_structure))
+        dst_path = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Plot_Subs_File)
         shutil.copy(origin_path, dst_path)
         time.sleep(1)
         os.remove(origin_path)
@@ -110,13 +110,13 @@ class SdeCmdFile(SdeCmdFile):
         file = open(interface_filepath)
         infoline = file.readline()  #read the information line
         regions_name = ['iso1', 'gate1', 'iso2', 'gate2', 'iso3', 'gate3', 'iso4']
-        regions_grid = [int(self.triple_cell.getParam('tc.iso1.width.grid')),
-                        int(self.triple_cell.getParam('tc.gate1.width.grid')),
-                        int(self.triple_cell.getParam('tc.iso2.width.grid')),
-                        int(self.triple_cell.getParam('tc.gate2.width.grid')),
-                        int(self.triple_cell.getParam('tc.iso3.width.grid')),
-                        int(self.triple_cell.getParam('tc.gate3.width.grid')),
-                        int(self.triple_cell.getParam('tc.iso4.width.grid'))]
+        regions_grid = [int(self.triple_cells.get_param('tc.iso1.width.grid')),
+                        int(self.triple_cells.get_param('tc.gate1.width.grid')),
+                        int(self.triple_cells.get_param('tc.iso2.width.grid')),
+                        int(self.triple_cells.get_param('tc.gate2.width.grid')),
+                        int(self.triple_cells.get_param('tc.iso3.width.grid')),
+                        int(self.triple_cells.get_param('tc.gate3.width.grid')),
+                        int(self.triple_cells.get_param('tc.iso4.width.grid'))]
         line_slice_count = 0
         for region, grid_num in zip(regions_name, regions_grid):
             for grid_index in range(1, grid_num + 1):
@@ -160,13 +160,13 @@ class SdeCmdFile(SdeCmdFile):
         self.params['current'] = sen.Sde_Out_File(self.pyt_structure)
         self.params['output'] = sen.Sde_Out_File(self.pyt_structure)
 
-        self.params['substrate.line'] = '' if self.pyt_structure is 'DoubleGate' else r'{Name="substrate" Voltage=0}'
+        self.params['substrate.line'] = '' if self.pyt_structure == 'DoubleGate' else r'{Name="substrate" Voltage=0}'
         # in else, pyt_structure is 'Planar'
 
         # parameters from structure
         params_from_structure = ['tc.gate1.workfunction', 'tc.gate2.workfunction', 'tc.gate3.workfunction']
         for param in params_from_structure:
-            self.params[param] = self.triple_cell.getParam(param)
+            self.params[param] = self.triple_cells.get_param(param)
 
         # set the points
         if self.vth_cell is None:
@@ -185,10 +185,10 @@ class SdeCmdFile(SdeCmdFile):
             self.params['gate.first.ramp'] = 'gate1'
             self.params['gate.second.ramp'] = 'gate3'
             self.params['gate.third.ramp'] = 'gate2'
-            self.params['tc.gate.voltage.first'] = self.triple_cell.getParam('tc.gate1.voltage')
-            self.params['tc.gate.voltage.second'] = self.triple_cell.getParam('tc.gate3.voltage')
-            self.params['tc.gate.voltage.third'] = self.triple_cell.getParam('tc.gate2.voltage')
-            self.params['tc.drain.voltage'] = self.triple_cell.getParam('tc.drain.voltage')
+            self.params['tc.gate.voltage.first'] = self.triple_cells.get_param('tc.gate1.voltage')
+            self.params['tc.gate.voltage.second'] = self.triple_cells.get_param('tc.gate3.voltage')
+            self.params['tc.gate.voltage.third'] = self.triple_cells.get_param('tc.gate2.voltage')
+            self.params['tc.drain.voltage'] = self.triple_cells.get_param('tc.drain.voltage')
         else:  # solve_vth situation
             if self.vth_cell == 'cell1':
                 self.params['gate.first.ramp'] = 'gate2'
@@ -202,10 +202,10 @@ class SdeCmdFile(SdeCmdFile):
                 self.params['gate.first.ramp'] = 'gate1'
                 self.params['gate.second.ramp'] = 'gate2'
                 self.params['gate.third.ramp'] = 'gate3'
-            self.params['tc.gate.voltage.first'] = self.triple_cell.getParam('tc.gate.voltage.pass')
-            self.params['tc.gate.voltage.second'] = self.triple_cell.getParam('tc.gate.voltage.pass')
-            self.params['tc.gate.voltage.third'] = self.triple_cell.getParam('tc.gate.voltage.read')
-            self.params['tc.drain.voltage'] = self.triple_cell.getParam('tc.drain.voltage.read')
+            self.params['tc.gate.voltage.first'] = self.triple_cells.get_param('tc.gate.voltage.pass')
+            self.params['tc.gate.voltage.second'] = self.triple_cells.get_param('tc.gate.voltage.pass')
+            self.params['tc.gate.voltage.third'] = self.triple_cells.get_param('tc.gate.voltage.read')
+            self.params['tc.drain.voltage'] = self.triple_cells.get_param('tc.drain.voltage.read')
 
         # CurrentPlot
         if self.vth_cell is None:  # solve initial value mode
@@ -233,11 +233,11 @@ class SdeCmdFile(SdeCmdFile):
             self.params['area.factor'] = ''
         else:
             if self.vth_cell == 'cell1':
-                self.params['area.factor'] = 'AreaFactor=%se-3' % self.triple_cell.getParam('tc.gate1.width')
+                self.params['area.factor'] = 'AreaFactor=%se-3' % self.triple_cells.get_param('tc.gate1.width')
             elif self.vth_cell == 'cell2':
-                self.params['area.factor'] = 'AreaFactor=%se-3' % self.triple_cell.getParam('tc.gate2.width')
+                self.params['area.factor'] = 'AreaFactor=%se-3' % self.triple_cells.get_param('tc.gate2.width')
             elif self.vth_cell == 'cell3':
-                self.params['area.factor'] = 'AreaFactor=%se-3' % self.triple_cell.getParam('tc.gate3.width')
+                self.params['area.factor'] = 'AreaFactor=%se-3' % self.triple_cells.get_param('tc.gate3.width')
 
         # Last solve
         if self.vth_cell is None:
@@ -249,8 +249,8 @@ class SdeCmdFile(SdeCmdFile):
 
     def calculateChargeConc(self, voltage_shift):
         nm_in_cm = 1e-7
-        epsilon_sio2 = float(self.structure.getMatParam(('SiO2', 'dielectricConstant')))
-        stack_thick_in_cm = float(self.structure.getParam('tc.stack.thick')) * nm_in_cm
+        epsilon_sio2 = float(self.triple_cells.getMatParam(('SiO2', 'dielectricConstant')))
+        stack_thick_in_cm = float(self.triple_cells.get_param('tc.stack.thick')) * nm_in_cm
         charge_conc = voltage_shift * (sen.eps0 * epsilon_sio2) / stack_thick_in_cm / sen.q_charge
         # positive voltage shift is caused by negative charge
         return -charge_conc

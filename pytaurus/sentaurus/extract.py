@@ -69,12 +69,12 @@ def extractVth(output):
 
 
 def parseVth(prj_path, trip_cells):
-    gate1_start = float(trip_cells.getParam('tc.iso1.width'))
-    gate1_end = gate1_start + float(trip_cells.getParam('tc.gate1.width'))
-    gate2_start = gate1_end + float(trip_cells.getParam('tc.iso2.width'))
-    gate2_end = gate2_start + float(trip_cells.getParam('tc.gate2.width'))
-    gate3_start = gate2_end + float(trip_cells.getParam('tc.iso3.width'))
-    gate3_end = gate3_start + float(trip_cells.getParam('tc.gate3.width'))
+    gate1_start = float(trip_cells.get_param('tc.iso1.width'))
+    gate1_end = gate1_start + float(trip_cells.get_param('tc.gate1.width'))
+    gate2_start = gate1_end + float(trip_cells.get_param('tc.iso2.width'))
+    gate2_end = gate2_start + float(trip_cells.get_param('tc.gate2.width'))
+    gate3_start = gate2_end + float(trip_cells.get_param('tc.iso3.width'))
+    gate3_end = gate3_start + float(trip_cells.get_param('tc.gate3.width'))
 
     time, vth_gate1 = _calcVfbShift(prj_path, gate1_start, gate1_end, ret_time=True)
     vth_gate2 = _calcVfbShift(prj_path, gate2_start, gate2_end)

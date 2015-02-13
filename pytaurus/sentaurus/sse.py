@@ -9,7 +9,7 @@ import pytaurus.sentaurus as sen
 
 class SseCmdFile:
     def __init__(self, trip_cell):
-        self.pyt_structure = trip_cell.getParam('tc.structure')
+        self.pyt_structure = trip_cell.get_param('tc.structure')
         self.triple_cell = trip_cell
         self.prj_path = trip_cell.prj_path
         self.template_cmdfile = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
@@ -25,16 +25,14 @@ class SseCmdFile:
             return line  # return this line if parameter parenthetical symbol (%%) is not found
         else:
             param_name = match.group()[1:-1]  # r'%(?<=%).*(?=%)%'
-        value = self.triple_cell.getParam(param_name)
+        value = self.triple_cell.get_param(param_name)
         new_line = re.sub(pattern, value, line)
         return new_line
 
     def _write_cmd_file(self):
         cmd_filepath = self.cmd_filepath
         f = open(cmd_filepath, 'w+')
-
         self._create_cmd_lines();
-
         f.writelines(self.cmd_lines)
         f.close()
         return
@@ -60,7 +58,7 @@ class SseCmdFile:
             line = '(define lX_section %s)\n' % leftX
             self.cmd_lines.append(line)
             param = 'tc.%s.width.grid' % name
-            grid_number = int(self.triple_cell.getParam(param))
+            grid_number = int(self.triple_cell.get_param(param))
             line = '(define Lgrid (/ %s %s))\n' % (length, grid_number)
             self.cmd_lines.append(line)
             for grid in range(1, grid_number + 1):
@@ -72,7 +70,7 @@ class SseCmdFile:
                 line = '(define %s (+ %s Lgrid)) ;region %s\n' % (variable_name, left, str(grid))
                 self.cmd_lines.append(line)
 
-            if self.pyt_structure is 'DoubleGate':
+            if self.pyt_structure == 'DoubleGate':
                 # for top gate stack
                 for grid in range(1, grid_number + 1):
                     right = 'rX_r' + str(grid)
@@ -97,7 +95,7 @@ class SseCmdFile:
                            % (left, right, r_name)
                     self.cmd_lines.append(line)
 
-            elif self.pyt_structure is 'Planar':
+            elif self.pyt_structure == 'Planar':
                 # for top gate stack
                 for grid in range(1, grid_number + 1):
                     right = 'rX_r' + str(grid)

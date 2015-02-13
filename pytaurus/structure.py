@@ -47,10 +47,17 @@ class TripleCells:
         f.close()
         return
 
-    def getParam(self, name):
-        if name is 'tc.junction':
-            return int(self.params[name])
-        return self.params[name]
+    def get_param(self, name):
+        try:
+            par_val = self.params[name]
+        except KeyError:
+            print('The required parameter [%s] does not exist.' % name)
+        if name == 'tc.junction':
+            if par_val == 'True':
+                par_val = '1'
+            elif par_val == 'False':
+                par_val = '0'
+        return str(par_val)
 
     def getMatParam(self, name):
         return self.mat_params[name]
@@ -138,17 +145,17 @@ class TripleCells:
         points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Points_Location_Subs)
         f = open(points_filepath, 'w+')
         f.write('vertex ID\t\tx coordinate [nm]\t\ty coordinate [nm]\n')
-        for id, tup_points in enumerate(self.channel_points):
-            line = str(id) + '\t' + str(tup_points[0]) + '\t' + str(tup_points[1]) + '\n'
+        for vert_id, tup_points in enumerate(self.channel_points):
+            line = str(vert_id) + '\t' + str(tup_points[0]) + '\t' + str(tup_points[1]) + '\n'
             f.write(line)
         f.close()
         return
 
     def refreshGateVoltage(self, vg1=None, vg2=None, vg3=None):
-        if not vg1 is None:
+        if vg1 is not None:
             self.params['tc.gate1.voltage'] = vg1
-        if not vg2 is None:
+        if vg2 is not None:
             self.params['tc.gate2.voltage'] = vg2
-        if not vg3 is None:
+        if vg3 is not None:
             self.params['tc.gate3.voltage'] = vg3
         return

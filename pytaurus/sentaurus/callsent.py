@@ -18,7 +18,8 @@ def callSse(sse_cmd):
     # logfile = open(log_filepath, 'w+')
     work_dir = os.getcwd()
     chdirToSentrun(prj_path)
-    command = 'sde -e -l %s' % sen.Sse_Cmd_File
+    # command = 'sde -e -l %s' % sen.Sse_Cmd_File
+    command = 'sde -e -l %s' % os.path.basename(sse_cmd.cmd_filepath)
     subprocess.call(command.split(' '))
     # output = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE).communicate()[0]
     # print(output.decode('utf-8'))
@@ -34,7 +35,7 @@ def callSdevice(sde_cmd):
     # logfile = open(log_filepath, 'w+')
     work_dir = os.getcwd()
     chdirToSentrun(prj_path)
-    command = 'sdevice %s' % sen.Sde_Cmd_File
+    command = 'sdevice %s' % os.path.basename(sde_cmd.cmd_filepath)
     subprocess.call(command.split(' '))
     # logfile.close()
     os.chdir(work_dir)  # it is important to change back
