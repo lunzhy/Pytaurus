@@ -15,7 +15,8 @@ import pytaurus.sentaurus.extract as extr
 import pytaurus.structure as structure
 import pytaurus.timestep as timestep
 
-Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'parsevth', 'timestep', 'project']
+Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'parsevth', 'timestep', 'project',
+                      'solvevth-nl', 'solvevth-empty']
 # the argument list
 # pyt clean [prj_path]                                      | clean the files except the remained in this folder
 # pyt prepare [prj_path]                                    | mkdir all the folders needed by the SimCTM
@@ -23,6 +24,10 @@ Effective_argument = ['clean', 'prepare', 'structure', 'solve', 'solvevth', 'par
 # pyt solve [prj_path] [-vg1|vg2|vg3=0]                     | run the simulation prject in this folder, the gate
 #                                                             voltage can be assigned
 # pyt solvevth [prj_path] [cell('cell2')] [time_list]       | solve vth using sentaurus of the project
+# pyt solvevth-nl [prj_path] [cell('cell2')] [time_list]    | solve vth using sentaurus of the project, remove the
+# lateral charge of cell2
+# pyt solvevth-empty [prj_path] [cell('cell2')] [time_list]    | solve vth using sentaurus of the project,
+# remove all the charge
 # pyt parsevth [prj_path]                                   | calculate vth through flatband shift of each time step
 # pyt timestep [prj_path]                                   | generate time step input file
 # pyt project [prj_path]                                    | generate project folders and files
@@ -67,7 +72,7 @@ def senInspect(triple_cells, time, vth_cell):
     return
 
 
-def senSolveAllVth(prj_path, trip_cells, vth_cell):
+def senSolveAllVth(prj_path, trip_cells, vth_cell, solve_type):
     files_name = os.listdir(os.path.join(prj_path, sen.Folder_Substrate))
     files_path = [os.path.join(prj_path, sen.Folder_Substrate, file) for file in files_name]
     files_path_sorted = sorted(files_path, key=lambda x: os.path.getmtime(x))
@@ -79,31 +84,31 @@ def senSolveAllVth(prj_path, trip_cells, vth_cell):
             continue
         # copy charge file before call sdevice
         sde.copyChargeFile(prj_path, file_path)
-        sde_cmd = sde.SdeCmdFile(trip_cells, vth_cell)
+        sde_cmd = sde.SdeCmdFile(trip_cells, vth_cell, solve_type=solve_type)
         sde_cmd.build()
         callsent.callSdevice(sde_cmd)
         senInspect(trip_cells, time, vth_cell)
     return
 
 
-def senSolveVthSingleTime(prj_path, trip_cells, time, vth_cell):
+def senSolveVthSingleTime(prj_path, trip_cells, time, vth_cell, solve_type):
     substrate_folder = os.path.join(prj_path, sen.Folder_Substrate)
     file_path = tools.searchFilePathByTime(substrate_folder, sen.Charge_File_Prefix, time)
     # copy charge file before call sdevice
     sde.copyChargeFile(prj_path, file_path)
-    sde_cmd = sde.SdeCmdFile(trip_cells, vth_cell)
+    sde_cmd = sde.SdeCmdFile(trip_cells, vth_cell, solve_type=solve_type)
     sde_cmd.build()
     callsent.callSdevice(sde_cmd)
     senInspect(trip_cells, time, vth_cell)
     return
 
 
-def senSolveVth(prj_path, cells, time_list, vth_cell='cell2'):
+def senSolveVth(prj_path, cells, time_list, vth_cell='cell2', solve_type=None):
     if len(time_list) == 0:
-        senSolveAllVth(prj_path, cells, vth_cell)
+        senSolveAllVth(prj_path, cells, vth_cell, solve_type)
     else:
         for time in time_list:
-            senSolveVthSingleTime(prj_path, cells, time, vth_cell)
+            senSolveVthSingleTime(prj_path, cells, time, vth_cell, solve_type)
     return
 
 
@@ -151,17 +156,24 @@ def main():
                 vg3 = vg_arg[5:]
         senPotential(prj_path, trip_cells, vg1=vg1, vg2=vg2, vg3=vg3)
 
-    elif keyword == 'solvevth':
+    elif 'solvevth' in keyword:
+        if keyword == 'solvevth-nl':
+            solve_type = 'nlateral'
+        elif keyword == 'solvevth-empty':
+            solve_type = 'empty'
+        else:
+            solve_type = None
+
         if len(curr_arg_list) == 0:
-            senSolveVth(prj_path, curr_arg_list, trip_cells)
+            senSolveVth(prj_path, curr_arg_list, trip_cells, solve_type=solve_type)
         else:
             if 'cell' in curr_arg_list[0]:
                 target_cell, curr_arg_list = curr_arg_list[0], curr_arg_list[1:]
                 time_list = [float(time) for time in curr_arg_list]
-                senSolveVth(prj_path, trip_cells, time_list, target_cell)
+                senSolveVth(prj_path, trip_cells, time_list, target_cell, solve_type=solve_type)
             else:
                 time_list = [float(time) for time in curr_arg_list]
-                senSolveVth(prj_path, trip_cells, time_list)
+                senSolveVth(prj_path, trip_cells, time_list, solve_type=solve_type)
 
     elif keyword == 'parsevth':
         senParseVth(prj_path, trip_cells)

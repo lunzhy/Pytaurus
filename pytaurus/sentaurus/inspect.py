@@ -11,6 +11,7 @@ Cell_gate_dict = {'cell1': 'gate1', 'cell2': 'gate2', 'cell3': 'gate3'}
 class InspectCmdFile():
     def __init__(self, trip_cells, cell='cell2'):
         self.cells = trip_cells
+        self.pyt_structure = self.cells.get_param('tc.structure')
         self.target_gate = Cell_gate_dict[cell]
         self.prj_path = trip_cells.prj_path
         self.params = {}
@@ -28,7 +29,7 @@ class InspectCmdFile():
         return current
 
     def _set_parameters(self):
-        self.params['plt'] = sen.Plot_File
+        self.params['plt'] = sen.Plot_File(self.pyt_structure)
         self.params['gate'] = self.target_gate
         self.params['vth.current'] = '1e-7'
         return

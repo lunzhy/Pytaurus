@@ -9,7 +9,7 @@ def get_file_name(template, pyt_structure):
     try:
         return file_name
     except UnboundLocalError:
-        print('Wrong tc.structure name. Error occurs in function get_file_name.')
+        print('Wrong tc.structure name. Error occurs in function get_file_name.', pyt_structure)
 
 
 # parameter file name

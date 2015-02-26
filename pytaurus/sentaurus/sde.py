@@ -14,7 +14,7 @@ def copyChargeFile(prj_path, charge_file):
 
 
 class SdeCmdFile:
-    def __init__(self, triple_cell, solve_vth_cell=None):
+    def __init__(self, triple_cell, solve_vth_cell=None, solve_type=None):
         """
         @solve_vth_cell: None for not solving vth, cell1 | cell2 | cell3 for specified cell
         """
@@ -30,6 +30,7 @@ class SdeCmdFile:
         self.cmd_lines = []
         self.lines_charge = ''
         self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sde_Cmd_File(self.pyt_structure))
+        self.solve_type = solve_type
         return
 
     def _copy_cmd_file_to_prj(self):
@@ -125,7 +126,14 @@ class SdeCmdFile:
                     continue
                 line_slice_count += 1
                 voltage_shift = float(re.split('\s+', file_line)[2])  # the third is voltage shift
-                charge_conc = self.calculateChargeConc(voltage_shift)
+
+                # consider the case when lateral charge is removed
+                if self.solve_type == 'empty':
+                    charge_conc = 0
+                elif self.solve_type == 'nlateral' and (region == 'iso2' or region == 'iso3'):
+                    charge_conc = 0
+                else:
+                    charge_conc = self.calculateChargeConc(voltage_shift)
 
                 if self.pyt_structure == 'DoubleGate':
                     for side in ['top', 'bot']:
