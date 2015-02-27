@@ -17,11 +17,11 @@ class TripleCells:
         self.channel_points = []
         return
 
-    def _isCommentOrBlank(self, line):
+    def _is_comment_or_blank(self, line):
         line = line.lstrip()
         return len(line) == 0 or line[0] == '#'
 
-    def _parseLine(self, line):
+    def _parse_line(self, line):
         effective_line = re.split(':|#', line)
         param = effective_line[0].strip()
         value = effective_line[1].strip()
@@ -38,12 +38,12 @@ class TripleCells:
             self.mat_params[(self.current_material, param)] = value
         return
 
-    def _readParamFile(self, file_path):
+    def _read_param_file(self, file_path):
         f = open(file_path)
         for line in f.readlines():
-            if self._isCommentOrBlank(line):
+            if self._is_comment_or_blank(line):
                 continue
-            self._parseLine(line)
+            self._parse_line(line)
         f.close()
         return
 
@@ -59,19 +59,19 @@ class TripleCells:
                 par_val = '0'
         return str(par_val)
 
-    def getMatParam(self, name):
+    def get_mat_param(self, name):
         return self.mat_params[name]
 
     def build(self):
         default_param_path = platform.Default_Param_Path
-        self._readParamFile(default_param_path)
-        self._readParamFile(self.user_param_path)
-        self._setEquiStackThick()
-        self._calcChannelPoints()
-        self._writeChannelPoints()
+        self._read_param_file(default_param_path)
+        self._read_param_file(self.user_param_path)
+        self._set_equi_stack_thick()
+        self._calc_channel_points()
+        self._write_channel_points()
         return
 
-    def _setEquiStackThick(self):
+    def _set_equi_stack_thick(self):
         tunnel_thick = self.params['tc.tunnel.thick']
         tunnel_material = self.params['tc.tunnel.material']
         tunnel_dielectric = self.mat_params[(tunnel_material, 'dielectricConstant')]
@@ -87,7 +87,7 @@ class TripleCells:
         self.params['tc.stack.thick'] = str('%.3f' % equi_stack_thick)  # in nm
         return
 
-    def _calcChannelPoints(self):
+    def _calc_channel_points(self):
         nm_in_um = 1e-3
         y_coord = 0
         offset = 0
@@ -141,7 +141,7 @@ class TripleCells:
             self.channel_points.append((x_coord, y_coord))
         return
 
-    def _writeChannelPoints(self):
+    def _write_channel_points(self):
         points_filepath = os.path.join(self.prj_path, sen.Folder_Exchange_Data, sen.Points_Location_Subs)
         f = open(points_filepath, 'w+')
         f.write('vertex ID\t\tx coordinate [nm]\t\ty coordinate [nm]\n')
@@ -151,7 +151,7 @@ class TripleCells:
         f.close()
         return
 
-    def refreshGateVoltage(self, vg1=None, vg2=None, vg3=None):
+    def refresh_gate_voltage(self, vg1=None, vg2=None, vg3=None):
         if vg1 is not None:
             self.params['tc.gate1.voltage'] = vg1
         if vg2 is not None:

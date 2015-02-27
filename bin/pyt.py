@@ -52,7 +52,7 @@ def senStructure(trip_cells):
 
 
 def senPotential(prj_path, trip_cells, vg1=None, vg2=None, vg3=None):
-    trip_cells.refreshGateVoltage(vg1, vg2, vg3)
+    trip_cells.refresh_gate_voltage(vg1, vg2, vg3)
     sde_cmd = sde.SdeCmdFile(trip_cells)
     sde_cmd.build()
     callsent.callSdevice(sde_cmd)

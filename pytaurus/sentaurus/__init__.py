@@ -71,6 +71,7 @@ def Plot_File(pyt_structure):
 def Plot_File_Init(pyt_structure):
     return get_file_name(r'init_%s_des.plt', pyt_structure)
 
+Param_File = 'iso.par'
 
 # the folder and file name for solving vth
 Folder_Substrate = r'Substrate'

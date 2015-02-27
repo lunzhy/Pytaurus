@@ -30,6 +30,7 @@ class SdeCmdFile:
         self.cmd_lines = []
         self.lines_charge = ''
         self.cmd_filepath = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Sde_Cmd_File(self.pyt_structure))
+        self.par_file = os.path.join(self.prj_path, sen.Folder_Run_Sentaurus, sen.Param_File)
         self.solve_type = solve_type
         return
 
@@ -55,6 +56,7 @@ class SdeCmdFile:
         self._read_interface_charge()
         self._set_parameters()
         self._write_cmd_file()
+        self._write_par_file()
         self._copy_cmd_file_to_prj()
         return
 
@@ -131,9 +133,11 @@ class SdeCmdFile:
                 if self.solve_type == 'empty':
                     charge_conc = 0
                 elif self.solve_type == 'nlateral' and (region == 'iso2' or region == 'iso3'):
-                    charge_conc = 0
+                    charge_conc = self._calculate_charge_density(voltage_shift)
+                    if charge_conc < 0:
+                        charge_conc = 0
                 else:
-                    charge_conc = self.calculateChargeConc(voltage_shift)
+                    charge_conc = self._calculate_charge_density(voltage_shift)
 
                 if self.pyt_structure == 'DoubleGate':
                     for side in ['top', 'bot']:
@@ -254,14 +258,26 @@ class SdeCmdFile:
             self.params['solve.last'] = 'Poisson Electron'
         return
 
-
-    def calculateChargeConc(self, voltage_shift):
+    def _calculate_charge_density(self, voltage_shift):
         nm_in_cm = 1e-7
-        epsilon_sio2 = float(self.triple_cells.getMatParam(('SiO2', 'dielectricConstant')))
+        epsilon_sio2 = float(self.triple_cells.get_mat_param(('SiO2', 'dielectricConstant')))
         stack_thick_in_cm = float(self.triple_cells.get_param('tc.stack.thick')) * nm_in_cm
         charge_conc = voltage_shift * (sen.eps0 * epsilon_sio2) / stack_thick_in_cm / sen.q_charge
         # positive voltage shift is caused by negative charge
         return -charge_conc
+
+    def _write_par_file(self):
+        material_iso = self.triple_cells.get_param('tc.iso.material')
+        epsilon_iso = self.triple_cells.get_mat_param((material_iso, 'dielectricConstant'))
+        with open(self.par_file, 'w') as f:
+            f.write('Material = "%s"\n' % material_iso)
+            f.write('{\n')
+            f.write('\tEpsilon\n')
+            f.write('\t{\n')
+            f.write('\t\t\tepsilon = %s\n' % epsilon_iso)
+            f.write('\t}\n')
+            f.write('}\n')
+        return None
 
 
 def test():
