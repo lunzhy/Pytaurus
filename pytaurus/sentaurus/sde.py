@@ -37,7 +37,6 @@ class SdeCmdFile:
     def _copy_cmd_file_to_prj(self):
         dirToCheck = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir,
                                   'out')
-
         shutil.copy(self.cmd_filepath, dirToCheck)
         return
 
