@@ -38,6 +38,8 @@ class SseCmdFile:
         return
 
     def _copy_cmd_file_to_prj(self):
+        if sen.Do_Not_Check_Cmd is True:
+            return
         dirToCheck = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir,
                                       'out')
         shutil.copy(self.cmd_filepath, dirToCheck)

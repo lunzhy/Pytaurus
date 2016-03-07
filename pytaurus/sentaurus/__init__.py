@@ -1,6 +1,8 @@
 __author__ = 'Lunzhy'
 
 
+Do_Not_Check_Cmd = True
+
 def get_file_name(template, pyt_structure):
     if pyt_structure == 'DoubleGate':
         file_name = template % 'triplefull'   # for historical reason
